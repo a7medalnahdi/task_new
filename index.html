@@ -74,9 +74,8 @@ function render() {
       <button onclick="addTask()" class="mt-6 w-full bg-[#ef5b0c] py-3 rounded-xl text-white font-bold hover:bg-orange-600">إضافة الطلب</button>
     </div>
 
-    
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mb-16">
-      ${tasks.filter(t => t.status !== "منجز").map(task => {
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+      ${tasks.map(task => {
         const statusColor = statuses[task.status];
         const grad = darkMode
           ? `linear-gradient(to bottom, ${hexToRgba(statusColor, 0.25)}, ${cardBg})`
@@ -91,51 +90,6 @@ function render() {
               ${Object.keys(statuses).map(s => `<option ${s===task.status?"selected":""}>${s}</option>`).join('')}
             </select>
           </div>
-          <h2 class="text-lg font-bold mb-2">${task.title}</h2>
-          <div class="space-y-1 text-sm ${darkMode ? 'text-gray-300' : 'text-gray-800'}">
-            <p>👤 ${task.requester || "--"}</p>
-            <p>📐 المقاس: ${task.size || "--"}</p>
-            <p>🎨 النوع: ${task.type || "--"}</p>
-            <p>📅 التسليم: ${task.deadline || "--"}</p>
-            <p>🔗 الرابط: <a href="${task.link}" class="text-blue-400 underline">رابط</a></p>
-          </div>
-          <div class="flex justify-end gap-2 mt-4">
-            <button onclick="editTask(${task.id})" class="text-blue-500 text-xl"><i class="ph ph-pencil-simple"></i></button>
-            <button onclick="deleteTask(${task.id})" class="text-red-500 text-xl"><i class="ph ph-trash-simple"></i></button>
-          </div>
-        </div>`;
-      }).join('')}
-    </div>
-
-    <h2 class="text-xl font-bold text-[#ef5b0c] mb-4">الطلبات المنجزة</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 opacity-60 grayscale">
-      ${tasks.filter(t => t.status === "منجز").map(task => {
-        const statusColor = statuses[task.status];
-        const grad = darkMode
-          ? `linear-gradient(to bottom, ${hexToRgba(statusColor, 0.25)}, ${cardBg})`
-          : `linear-gradient(to bottom, ${hexToRgba(statusColor, 0.3)}, white)`;
-
-        return `
-        <div class="p-6 rounded-2xl border shadow-md transition"
-             style="background: ${grad}; border-color: ${darkMode ? '#4b5563' : '#ccc'};">
-          <div class="flex justify-between items-center mb-4">
-            <span class="px-3 py-1 text-xs font-semibold rounded-full" style="background:${departments[task.department]}; color:#000">${task.department}</span>
-            <select onchange="updateStatus(${task.id}, this.value)" class="text-xs font-bold px-3 py-1 rounded-full bg-transparent text-white border border-white">
-              ${Object.keys(statuses).map(s => `<option ${s===task.status?"selected":""}>${s}</option>`).join('')}
-            </select>
-          </div>
-          <h2 class="text-lg font-bold mb-2">${task.title}</h2>
-          <div class="space-y-1 text-sm ${darkMode ? 'text-gray-300' : 'text-gray-800'}">
-            <p>👤 ${task.requester || "--"}</p>
-            <p>📐 المقاس: ${task.size || "--"}</p>
-            <p>🎨 النوع: ${task.type || "--"}</p>
-            <p>📅 التسليم: ${task.deadline || "--"}</p>
-            <p>🔗 الرابط: <a href="${task.link}" class="text-blue-400 underline">رابط</a></p>
-          </div>
-        </div>`;
-      }).join('')}
-    </div>
-    
           <h2 class="text-lg font-bold mb-2">${task.title}</h2>
           <div class="space-y-1 text-sm ${darkMode ? 'text-gray-300' : 'text-gray-800'}">
             <p>👤 ${task.requester || "--"}</p>
