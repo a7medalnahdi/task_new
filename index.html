@@ -33,7 +33,7 @@
     
     .notification {
   position: fixed;
-  top: 10%;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) scale(0.9);
   padding: 20px 30px;
@@ -43,16 +43,39 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   z-index: 1000;
   opacity: 0;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
   max-width: 90%;
   text-align: center;
   font-size: 1.1rem;
+  animation: fadeOut 0.4s ease forwards;
 }
-    
+
 .notification.show {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
+  animation: fadeIn 0.4s ease forwards;
 }
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -60%) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -40%) scale(0.9);
+  }
+}
+
     
     .skeleton {
       background: linear-gradient(90deg, #2a374a 25%, #3c4758 50%, #2a374a 75%);
@@ -521,14 +544,15 @@
     
     // إظهار إشعارات
     function showNotification(message, type = 'success') {
-      const notification = document.getElementById('notification');
-      notification.textContent = message;
-      notification.className = `notification ${type === 'error' ? 'bg-red-500' : 'bg-[#ef5b0c]'} show`;
-      
-      setTimeout(() => {
-        notification.className = 'notification';
-      }, 3000);
-    }
+  const notification = document.getElementById('notification');
+  notification.textContent = message;
+  notification.className = `notification ${type === 'error' ? 'bg-red-600' : 'bg-[#ef5b0c]'} show`;
+
+  // إزالة الإشعار بعد 3 ثواني بأنيميشن خروج
+  setTimeout(() => {
+    notification.classList.remove('show');
+  }, 3000);
+}
     
     // إضافة نشاط جديد في السجل
     function logActivity(action, taskId, details = '') {
