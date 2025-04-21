@@ -2,196 +2,2432 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>نظام الطلبات</title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>نظام الطلبات المطور 2.0</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/ar.js"></script>
   <style>
-    body.dark { background-color: #111827; color: white; }
-    body.light { background-color: #ffefe5; color: black; }
+    @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
+    
+    * {
+      font-family: 'Tajawal', sans-serif;
+    }
+    
+    body.dark { 
+      background-color: #111827; 
+      color: white; 
+    }
+    
+    body.light { 
+      background-color: #f8f9fa; 
+      color: black; 
+    }
+    
     select, option {
-      background: transparent;
       appearance: none;
       padding: 0.5rem;
     }
+    
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 8px;
+      background: #ef5b0c;
+      color: white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    
+    .notification.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .skeleton {
+      background: linear-gradient(90deg, #2a374a 25%, #3c4758 50%, #2a374a 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+    }
+    
+    @keyframes skeleton-loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    
+    .task-card {
+      transition: all 0.3s ease;
+    }
+    
+    .task-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+    
+    @keyframes fadeIn { 
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    
+    .priority-high {
+      box-shadow: 0 0 0 2px #e74c3c;
+    }
+    
+    .priority-medium {
+      box-shadow: 0 0 0 2px #f39c12;
+    }
+    
+    .priority-low {
+      box-shadow: 0 0 0 2px #2ecc71;
+    }
+    
+    /* تصميم الشريط الجانبي */
+    .sidebar {
+      transition: width 0.3s ease;
+    }
+    
+    .sidebar.collapsed {
+      width: 60px;
+    }
+    
+    .tooltip {
+      position: relative;
+    }
+    
+    .tooltip:hover:after {
+      content: attr(data-tooltip);
+      position: absolute;
+      right: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      z-index: 10;
+      margin-right: 10px;
+    }
+    
+    /* انيميشن جديد للبطاقات */
+    .task-card.new {
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(239, 91, 12, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(239, 91, 12, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 91, 12, 0); }
+    }
+    
+    /* تحسين التبويبات */
+    .tab {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .tab::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #ef5b0c;
+      transition: width 0.3s ease;
+    }
+    
+    .tab.active::after {
+      width: 100%;
+    }
+    
+    /* تصميم المودال */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+    
+    .modal-backdrop.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .modal-content {
+      transform: translateY(20px);
+      transition: transform 0.3s;
+    }
+    
+    .modal-backdrop.show .modal-content {
+      transform: translateY(0);
+    }
+    
+    /* تصميم زر العائم */
+    .floating-button {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      height: 60px;
+      width: 60px;
+      border-radius: 30px;
+      background: #ef5b0c;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      z-index: 40;
+      transition: all 0.3s ease;
+    }
+    
+    .floating-button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+    }
+    
+    /* تحسين تصميم النماذج */
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(239, 91, 12, 0.5);
+    }
+    
+    /* سكرول بار مخصص */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #ef5b0c;
+      border-radius: 10px;
+    }
+    
+    /* تحسين قسم البحث */
+    .search-container {
+      position: relative;
+    }
+    
+    .search-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      max-height: 300px;
+      overflow-y: auto;
+      background: var(--bg-color);
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      z-index: 20;
+      display: none;
+    }
+    
+    .search-container:focus-within .search-results {
+      display: block;
+    }
+
+    /* تصميم التعليقات */
+    .comment {
+      position: relative;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .comment:before {
+      content: '';
+      position: absolute;
+      top: 15px;
+      right: -8px;
+      width: 0;
+      height: 0;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+      border-left: 8px solid currentColor;
+    }
+
+    /* تصميم علامات التمييز */
+    .tag {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      margin-right: 4px;
+      white-space: nowrap;
+    }
+
+    /* تصميم شريط التقدم */
+    .progress-bar {
+      height: 8px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: #ef5b0c;
+      transition: width 0.5s ease;
+    }
+
+    /* انيميشن إضافي للعناصر */
+    .slide-in {
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(30px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .bounce {
+      animation: bounce 0.5s;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
   </style>
 </head>
-<body class="dark">
-  <div id="app" class="max-w-7xl mx-auto px-4 py-8"></div>
-
-<script>
-let tasks = [];
-let editId = null;
-let darkMode = true;
-
-try {
-  tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
-} catch (e) {
-  console.error("خطأ في قراءة البيانات:", e);
-  tasks = [];
-}
-
-const departments = {
-  "كرييتف": "#a3e635", "سوشال ميديا": "#f472b6", "ماركتنق": "#f87171",
-  "كواليتي": "#fde047", "الشراكات": "#34d399", "سويتر": "#60a5fa",
-  "اوبريشن": "#a78bfa", "خدمة عملاء": "#fb923c", "تقنية": "#22d3ee"
-};
-
-const statuses = {
-  "غير منجز": "#e74c3c", "منجز": "#27ae60", "جاري العمل": "#3498db",
-  "انتظار الرد": "#8e44ad", "انتظار المحتوى": "#f39c12",
-  "معلق": "#6e4d2b", "ملغي": "#000", "اهمية": "#2ecc71"
-};
-
-function hexToRgba(hex, alpha) {
-  try {
-    const r = parseInt(hex.slice(1,3), 16);
-    const g = parseInt(hex.slice(3,5), 16);
-    const b = parseInt(hex.slice(5,7), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-  } catch (e) {
-    console.error("خطأ في تحويل اللون:", e);
-    return `rgba(0, 0, 0, ${alpha})`;
-  }
-}
-
-function val(id) {
-  const el = document.getElementById(id);
-  return el ? el.value || "--" : "--";
-}
-
-function renderTaskCard(task, isCompleted = false) {
-  const statusColor = statuses[task.status] || "#999";
-  const bgColor = darkMode
-    ? `linear-gradient(to bottom, ${hexToRgba(statusColor, 0.2)}, #1f2937)`
-    : `linear-gradient(to bottom, ${hexToRgba(statusColor, 0.3)}, white)`;
-
-  const opacity = isCompleted ? "opacity-60 grayscale" : "";
-  const borderColor = darkMode ? "#4b5563" : "#ccc";
-  const textColor = darkMode ? "text-gray-300" : "text-gray-800";
-
-  return `
-    <div class="p-6 rounded-2xl border shadow-md transition ${opacity}" style="background: ${bgColor}; border-color: ${borderColor};">
-      <div class="flex justify-between items-center mb-4">
-        <span class="px-3 py-1 text-xs font-semibold rounded-full" style="background:${departments[task.department] || '#ccc'}; color:#000">${task.department || "غير محدد"}</span>
-        <select onchange="updateStatus(${task.id}, this.value)" class="text-xs font-bold px-3 py-1 rounded-full bg-transparent ${darkMode ? 'text-white border-white' : 'text-gray-800 border-gray-500'} border">
-          ${Object.keys(statuses).map(s => `<option value="${s}" ${s === task.status ? "selected" : ""}>${s}</option>`).join('')}
-        </select>
-      </div>
-      <h2 class="text-lg font-bold mb-2">${task.title || "بدون عنوان"}</h2>
-      <div class="space-y-1 text-sm ${textColor}">
-        <p>👤 ${task.requester || "--"}</p>
-        <p>📐 المقاس: ${task.size || "--"}</p>
-        <p>🎨 النوع: ${task.type || "--"}</p>
-        <p>📅 التسليم: ${task.deadline || "--"}</p>
-        <p>🔗 الرابط: ${task.link ? `<a href="${task.link}" class="text-blue-400 underline">رابط</a>` : "--"}</p>
-      </div>
-      <div class="flex justify-end gap-2 mt-4">
-        <button onclick="editTask(${task.id})" class="text-blue-500 text-xl"><i class="ph ph-pencil-simple"></i></button>
-        <button onclick="deleteTask(${task.id})" class="text-red-500 text-xl"><i class="ph ph-trash-simple"></i></button>
-      </div>
-    </div>`;
-}
-
-function render() {
-  const bg = darkMode ? 'dark' : 'light';
-  const input = darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-black';
-  document.body.className = bg;
-
-  const activeTasks = tasks.filter(t => t.status !== "منجز");
-  const doneTasks = tasks.filter(t => t.status === "منجز");
-
-  const formFields = [
-    { id: "title", label: "عنوان الطلب" },
-    { id: "requester", label: "اسم صاحب الطلب" },
-    { id: "type", label: "نوع الطلب" },
-    { id: "size", label: "مقاس التصميم" },
-    { id: "link", label: "الرابط" },
-    { id: "deadline", label: "تاريخ التسليم", type: "date" }
-  ];
-
-  const app = document.getElementById("app");
-  app.innerHTML = `
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold">نظام إدارة الطلبات</h1>
-      <button onclick="toggleMode()" class="px-4 py-2 rounded-full bg-[#ef5b0c] text-white">
-        ${darkMode ? "الوضع النهاري ☀️" : "الوضع الليلي 🌙"}
+<body class="dark min-h-screen">
+  <div class="flex">
+    <!-- الشريط الجانبي -->
+    <div class="sidebar min-h-screen p-4 bg-gray-900 text-white flex flex-col items-center" id="sidebar">
+      <button class="mb-8 text-2xl text-gray-400 hover:text-white" id="toggle-sidebar">
+        <em class="ph ph-list"></em>
       </button>
-    </div>
-
-    <div class="p-6 rounded-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-md mb-10">
-      <h2 class="text-xl font-bold text-[#ef5b0c] mb-6">إضافة طلب جديد</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        ${formFields.map(f => `<input id="${f.id}" placeholder="${f.label}" type="${f.type || 'text'}" class="p-3 rounded-xl ${input} w-full" />`).join('')}
-        <select id="department" class="p-3 rounded-xl ${input}">
-          ${Object.keys(departments).map(dep => `<option>${dep}</option>`).join('')}
-        </select>
-        <textarea id="description" rows="2" placeholder="تفاصيل الطلب" class="p-3 rounded-xl ${input} col-span-full"></textarea>
+      
+      <div class="space-y-6 w-full">
+        <button class="tooltip tab flex items-center justify-center w-full p-3 rounded-lg hover:bg-gray-800 transition-all" data-tooltip="لوحة التحكم" data-section="dashboard">
+          <em class="ph ph-chart-pie text-2xl"></em>
+          <span class="sidebar-text mr-3">لوحة التحكم</span>
+        </button>
+        
+        <button class="tooltip tab active flex items-center justify-center w-full p-3 rounded-lg bg-gray-800 text-white transition-all" data-tooltip="الطلبات" data-section="tasks">
+          <em class="ph ph-clipboard-text text-2xl"></em>
+          <span class="sidebar-text mr-3">الطلبات</span>
+        </button>
+        
+        <button class="tooltip tab flex items-center justify-center w-full p-3 rounded-lg hover:bg-gray-800 transition-all" data-tooltip="التقارير" data-section="reports">
+          <em class="ph ph-chart-line text-2xl"></em>
+          <span class="sidebar-text mr-3">التقارير</span>
+        </button>
+        
+        <button class="tooltip tab flex items-center justify-center w-full p-3 rounded-lg hover:bg-gray-800 transition-all" data-tooltip="الإعدادات" data-section="settings">
+          <em class="ph ph-gear text-2xl"></em>
+          <span class="sidebar-text mr-3">الإعدادات</span>
+        </button>
       </div>
-      <button onclick="addTask()" class="mt-6 w-full bg-[#ef5b0c] py-3 rounded-xl text-white font-bold hover:bg-orange-600">${editId ? "تحديث الطلب" : "إضافة الطلب"}</button>
+      
+      <div class="mt-auto">
+        <button class="tooltip flex items-center justify-center w-full p-3 rounded-lg hover:bg-gray-800 transition-all" data-tooltip="المستخدم">
+          <em class="ph ph-user-circle text-2xl"></em>
+          <span class="sidebar-text mr-3">المستخدم</span>
+        </button>
+      </div>
     </div>
-
-    <h2 class="text-xl font-bold mb-4">الطلبات النشطة</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mb-10">
-      ${activeTasks.map(t => renderTaskCard(t)).join('') || '<p class="col-span-full text-center text-gray-400">لا توجد طلبات نشطة</p>'}
+    
+    <!-- المحتوى الرئيسي -->
+    <div class="flex-1 overflow-x-hidden">
+      <div class="max-w-7xl mx-auto px-4 py-8" id="app"></div>
     </div>
+  </div>
+  
+  <!-- عنصر الإشعارات -->
+  <div class="notification" id="notification"></div>
+  
+  <!-- زر عائم لإضافة طلب -->
+  <button class="floating-button" id="add-task-btn">
+    <em class="ph ph-plus text-2xl"></em>
+  </button>
+  
+  <!-- نموذج الطلب (مودال) -->
+  <div class="modal-backdrop" id="task-modal">
+    <div class="modal-content max-w-3xl w-full bg-gray-800 rounded-2xl shadow-lg p-6">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold text-[#ef5b0c]" id="modal-title">إضافة طلب جديد</h2>
+        <button class="text-gray-400 hover:text-white text-2xl" id="close-modal">
+          <em class="ph ph-x"></em>
+        </button>
+      </div>
+      
+      <div id="task-form"></div>
+    </div>
+  </div>
+  
+  <!-- مودال عرض التفاصيل -->
+  <div class="modal-backdrop" id="task-details-modal">
+    <div class="modal-content max-w-4xl w-full bg-gray-800 rounded-2xl shadow-lg p-6 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold text-[#ef5b0c]">تفاصيل الطلب</h2>
+        <button class="text-gray-400 hover:text-white text-2xl" id="close-details-modal">
+          <em class="ph ph-x"></em>
+        </button>
+      </div>
+      
+      <div id="task-details-content"></div>
+    </div>
+  </div>
+  
+  <!-- مودال تأكيد الحذف -->
+  <div class="modal-backdrop" id="confirm-modal">
+    <div class="modal-content max-w-md w-full bg-gray-800 rounded-2xl shadow-lg p-6">
+      <h2 class="text-xl font-bold mb-4">تأكيد الحذف</h2>
+      <p class="mb-6">هل أنت متأكد من رغبتك في حذف هذا الطلب؟ لا يمكن التراجع عن هذه العملية.</p>
+      <div class="flex justify-end gap-3">
+        <button id="cancel-delete" class="px-4 py-2 rounded-lg bg-gray-600 text-white hover:bg-gray-700 transition">إلغاء</button>
+        <button id="confirm-delete" class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition">حذف</button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // متغيرات عامة
+    let tasks = [];
+    let editId = null;
+    let darkMode = true;
+    let sidebarCollapsed = false;
+    let filteredTasks = [];
+    let currentSort = { field: null, ascending: true };
+    let currentFilter = { department: null, status: null, priority: null, tags: [] };
+    let searchTerm = '';
+    let activeSection = 'tasks';
+    let comments = {};
+    let activityLog = [];
+    let deleteTaskId = null;
+    let teamMembers = [
+      { id: 1, name: "أحمد الأحمد", role: "مدير مشاريع", avatar: "A" },
+      { id: 2, name: "نوف السعيد", role: "مصمم", avatar: "N" },
+      { id: 3, name: "محمد العبدالله", role: "مطور", avatar: "M" },
+      { id: 4, name: "سارة الخالد", role: "مدير حساب", avatar: "S" }
+    ];
+    
+    // تعريف الأولويات
+    const priorities = {
+      "عالي": { color: "#e74c3c", icon: "ph-warning" },
+      "متوسط": { color: "#f39c12", icon: "ph-clock" },
+      "منخفض": { color: "#2ecc71", icon: "ph-caret-down" }
+    };
+    
+    // تعريف الأقسام
+    const departments = {
+      "كرييتف": { color: "#a3e635", icon: "ph-paint-brush" },
+      "سوشال ميديا": { color: "#f472b6", icon: "ph-chat-centered-text" },
+      "ماركتنق": { color: "#f87171", icon: "ph-chart-line-up" },
+      "كواليتي": { color: "#fde047", icon: "ph-check-square" },
+      "الشراكات": { color: "#34d399", icon: "ph-handshake" },
+      "سويتر": { color: "#60a5fa", icon: "ph-twitter-logo" },
+      "اوبريشن": { color: "#a78bfa", icon: "ph-gear" },
+      "خدمة عملاء": { color: "#fb923c", icon: "ph-headset" },
+      "تقنية": { color: "#22d3ee", icon: "ph-code" }
+    };
+    
+    // تعريف الحالات
+    const statuses = {
+      "غير منجز": { color: "#e74c3c", icon: "ph-x-circle" },
+      "منجز": { color: "#27ae60", icon: "ph-check-circle" },
+      "جاري العمل": { color: "#3498db", icon: "ph-spinner" },
+      "انتظار الرد": { color: "#8e44ad", icon: "ph-hourglass" },
+      "انتظار المحتوى": { color: "#f39c12", icon: "ph-file-text" },
+      "معلق": { color: "#6e4d2b", icon: "ph-pause" },
+      "ملغي": { color: "#000", icon: "ph-prohibit" },
+      "اهمية": { color: "#2ecc71", icon: "ph-star" }
+    };
 
-    <h2 class="text-xl font-bold mb-4">الطلبات المنجزة</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-      ${doneTasks.map(t => renderTaskCard(t, true)).join('') || '<p class="col-span-full text-center text-gray-500">لا توجد طلبات منجزة</p>'}
-    </div>`;
-}
+    // تعريف الوسوم (التاغات)
+    const tagsOptions = [
+      { id: "عاجل", color: "#e74c3c" },
+      { id: "مهم", color: "#f39c12" },
+      { id: "جديد", color: "#3498db" },
+      { id: "معقد", color: "#9b59b6" },
+      { id: "بسيط", color: "#2ecc71" },
+      { id: "يحتاج مراجعة", color: "#1abc9c" },
+      { id: "خاص", color: "#34495e" },
+      { id: "تعديل", color: "#f1c40f" }
+    ];
+    
+    // تحميل البيانات من التخزين المحلي
+    try {
+      tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
+      comments = JSON.parse(localStorage.getItem("comments") || "{}");
+      activityLog = JSON.parse(localStorage.getItem("activityLog") || "[]");
+      darkMode = localStorage.getItem("darkMode") === "false" ? false : true;
+      
+      // تعيين أولوية افتراضية للمهام القديمة
+      tasks = tasks.map(t => ({
+        ...t,
+        priority: t.priority || "متوسط",
+        assignedTo: t.assignedTo || null,
+        tags: t.tags || [],
+        attachments: t.attachments || []
+      }));
+      
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    } catch (e) {
+      console.error("خطأ في قراءة البيانات:", e);
+      tasks = [];
+      comments = {};
+      activityLog = [];
+    }
+    
+    // دالة مساعدة للحصول على قيمة عنصر
+    function val(id) {
+      const el = document.getElementById(id);
+      return el ? el.value || "" : "";
+    }
+    
+    // دالة تحويل اللون من هيكس إلى rgba
+    function hexToRgba(hex, alpha) {
+      try {
+        const r = parseInt(hex.slice(1,3), 16);
+        const g = parseInt(hex.slice(3,5), 16);
+        const b = parseInt(hex.slice(5,7), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+      } catch (e) {
+        console.error("خطأ في تحويل اللون:", e);
+        return `rgba(0, 0, 0, ${alpha})`;
+      }
+    }
+    
+    // إظهار إشعارات
+    function showNotification(message, type = 'success') {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.className = `notification ${type === 'error' ? 'bg-red-500' : 'bg-[#ef5b0c]'} show`;
+      
+      setTimeout(() => {
+        notification.className = 'notification';
+      }, 3000);
+    }
+    
+    // إضافة نشاط جديد في السجل
+    function logActivity(action, taskId, details = '') {
+      const task = tasks.find(t => t.id === taskId);
+      const logEntry = {
+        id: Date.now(),
+        timestamp: new Date().toISOString(),
+        action,
+        taskId,
+        taskTitle: task ? task.title : 'طلب محذوف',
+        details,
+        user: 'المستخدم الحالي' // يمكن تغييره لاحقًا مع نظام المستخدمين
+      };
+      
+      activityLog.unshift(logEntry);
+      if (activityLog.length > 200) {
+        activityLog = activityLog.slice(0, 200);
+      }
+      
+      localStorage.setItem("activityLog", JSON.stringify(activityLog));
+    }
+    
+    // دالة تحديث عنصر واجهة المستخدم بناءً على القسم النشط
+    function updateUI() {
+      // التبديل بين الأقسام
+      document.querySelectorAll('.tab').forEach(tab => {
+        const section = tab.getAttribute('data-section');
+        if (section === activeSection) {
+          tab.classList.add('active', 'bg-gray-800');
+        } else {
+          tab.classList.remove('active', 'bg-gray-800');
+        }
+      });
+      
+      // إنشاء المحتوى بناءً على القسم النشط
+      switch (activeSection) {
+        case 'dashboard':
+          renderDashboard();
+          break;
+        case 'tasks':
+          renderTasks();
+          break;
+        case 'reports':
+          renderReports();
+          break;
+        case 'settings':
+          renderSettings();
+          break;
+        default:
+          renderTasks();
+      }
+    }
+    
+    // دالة إنشاء لوحة التحكم
+    function renderDashboard() {
+      const totalTasks = tasks.length;
+      const completedTasks = tasks.filter(t => t.status === "منجز").length;
+      const pendingTasks = tasks.filter(t => t.status === "غير منجز").length;
+      const inProgressTasks = tasks.filter(t => t.status === "جاري العمل").length;
+      const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+      
+      // حساب الطلبات حسب القسم
+      const departmentCounts = {};
+      Object.keys(departments).forEach(dept => {
+        departmentCounts[dept] = tasks.filter(t => t.department === dept).length;
+      });
+      
+      // حساب الطلبات حسب الحالة
+      const statusCounts = {};
+      Object.keys(statuses).forEach(status => {
+        statusCounts[status] = tasks.filter(t => t.status === status).length;
+      });
+      
+      // حساب الطلبات المتأخرة
+      const now = new Date();
+      const overdueTasks = tasks.filter(t => {
+        if (!t.deadline || t.status === "منجز" || t.status === "ملغي") return false;
+        return new Date(t.deadline) < now;
+      });
+      
+      // حساب متوسط وقت إنجاز الطلبات (بالأيام)
+      let avgCompletionTime = 0;
+      const completedTasksWithTime = tasks.filter(t => {
+        return t.status === "منجز" && t.completedAt && t.createdAt;
+      });
+      
+      if (completedTasksWithTime.length > 0) {
+        const totalDays = completedTasksWithTime.reduce((sum, task) => {
+          const created = new Date(task.createdAt);
+          const completed = new Date(task.completedAt || task.createdAt);
+          const diffTime = Math.abs(completed - created);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          return sum + diffDays;
+        }, 0);
+        
+        avgCompletionTime = (totalDays / completedTasksWithTime.length).toFixed(1);
+      }
+      
+      // البيانات لرسم المخطط
+      const last7Days = [];
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        last7Days.push(date.toISOString().split('T')[0]);
+      }
+      
+      const newTasksPerDay = last7Days.map(day => {
+        return tasks.filter(t => t.createdAt && t.createdAt.startsWith(day)).length;
+      });
+      
+      const completedTasksPerDay = last7Days.map(day => {
+        return tasks.filter(t => t.completedAt && t.completedAt.startsWith(day)).length;
+      });
+      
+      const bg = darkMode ? 'bg-gray-800' : 'bg-white';
+      const textColor = darkMode ? 'text-white' : 'text-black';
+      
+      const app = document.getElementById("app");
+      app.innerHTML = `
+        <div class="flex justify-between items-center mb-6">
+          <h1 class="text-2xl font-bold">لوحة التحكم</h1>
+          <div class="flex gap-4">
+            <button onclick="toggleMode()" class="px-4 py-2 rounded-full bg-[#ef5b0c] text-white hover:bg-orange-600 transition-all flex items-center gap-2">
+              <i class="ph ${darkMode ? 'ph-sun' : 'ph-moon'}"></i>
+              ${darkMode ? "الوضع النهاري" : "الوضع الليلي"}
+            </button>
+          </div>
+        </div>
 
-function addTask() {
-  const task = {
-    id: editId ?? Date.now(),
-    title: val("title"),
-    requester: val("requester"),
-    type: val("type"),
-    size: val("size"),
-    link: val("link"),
-    deadline: val("deadline"),
-    description: val("description"),
-    department: val("department"),
-    status: "غير منجز"
-  };
-  tasks = editId ? tasks.map(t => t.id === editId ? task : t) : [...tasks, task];
-  editId = null;
-  localStorage.setItem("tasks", JSON.stringify(tasks));
-  render();
-}
+        <!-- بطاقات الإحصاءات -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div class="p-4 rounded-xl ${bg} shadow-md flex items-center justify-between">
+            <div>
+              <h3 class="text-sm text-gray-500">إجمالي الطلبات</h3>
+              <p class="text-2xl font-bold">${totalTasks}</p>
+            </div>
+            <div class="text-3xl text-blue-500">
+              <i class="ph ph-clipboard-text"></i>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl ${bg} shadow-md flex items-center justify-between">
+            <div>
+              <h3 class="text-sm text-gray-500">الطلبات المنجزة</h3>
+              <p class="text-2xl font-bold">${completedTasks}</p>
+            </div>
+            <div class="text-3xl text-green-500">
+              <i class="ph ph-check-circle"></i>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl ${bg} shadow-md flex items-center justify-between">
+            <div>
+              <h3 class="text-sm text-gray-500">الطلبات المتأخرة</h3>
+              <p class="text-2xl font-bold">${overdueTasks.length}</p>
+            </div>
+            <div class="text-3xl text-red-500">
+              <i class="ph ph-clock-countdown"></i>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl ${bg} shadow-md flex items-center justify-between">
+            <div>
+              <h3 class="text-sm text-gray-500">نسبة الإنجاز</h3>
+              <p class="text-2xl font-bold">${completionRate}%</p>
+            </div>
+            <div class="text-3xl text-purple-500">
+              <i class="ph ph-chart-pie"></i>
+            </div>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <!-- مخطط الأداء -->
+          <div class="lg:col-span-2 p-6 rounded-xl ${bg} shadow-md">
+            <h2 class="text-lg font-bold mb-4">أداء النظام خلال الأسبوع</h2>
+            <div class="h-60">
+              <canvas id="performanceChart"></canvas>
+            </div>
+          </div>
+          
+          <!-- كفاءة الأقسام -->
+          <div class="p-6 rounded-xl ${bg} shadow-md">
+            <h2 class="text-lg font-bold mb-4">كفاءة الأقسام</h2>
+            <div class="h-60">
+              <canvas id="departmentsChart"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <!-- إحصائيات إضافية -->
+          <div class="p-6 rounded-xl ${bg} shadow-md">
+            <h2 class="text-lg font-bold mb-4">إحصائيات أخرى</h2>
+            <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                <span class="text-gray-500">متوسط وقت الإنجاز</span>
+                <span class="font-bold">${avgCompletionTime} يوم</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-gray-500">عدد الطلبات قيد التنفيذ</span>
+                <span class="font-bold">${inProgressTasks}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-gray-500">عدد الطلبات المنتظرة</span>
+                <span class="font-bold">${pendingTasks}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-gray-500">نسبة الطلبات المتأخرة</span>
+                <span class="font-bold">${totalTasks > 0 ? Math.round((overdueTasks.length / totalTasks) * 100) : 0}%</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- توزيع الحالات -->
+          <div class="p-6 rounded-xl ${bg} shadow-md">
+            <h2 class="text-lg font-bold mb-4">توزيع الحالات</h2>
+            <div class="h-60">
+              <canvas id="statusChart"></canvas>
+            </div>
+          </div>
+          
+          <!-- آخر الأنشطة -->
+          <div class="p-6 rounded-xl ${bg} shadow-md">
+            <h2 class="text-lg font-bold mb-4">آخر الأنشطة</h2>
+            <div class="space-y-3 max-h-60 overflow-y-auto">
+              ${activityLog.slice(0, 5).map(log => `
+                <div class="border-r-2 pr-3" style="border-color: ${statuses[log.action]?.color || '#999'}">
+                  <p class="text-sm opacity-80">${new Date(log.timestamp).toLocaleString('en-US')}</p>
+                  <p class="${textColor}">${log.taskTitle}: ${log.action}</p>
+                </div>
+              `).join('') || '<div class="text-gray-500 text-center">لا توجد أنشطة حديثة</div>'}
+            </div>
+          </div>
+        </div>
+        
+        <!-- الطلبات الحديثة -->
+        <div class="p-6 rounded-xl ${bg} shadow-md mb-8">
+          <h2 class="text-lg font-bold mb-4">أحدث الطلبات</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            ${tasks.slice(0, 3).map(task => `
+              <div class="p-4 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-100'} flex flex-col cursor-pointer task-card" onclick="showTaskDetails(${task.id})">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="px-2 py-1 rounded-full text-xs" style="background: ${departments[task.department]?.color || '#ccc'}">
+                    <i class="ph ${departments[task.department]?.icon || 'ph-folder'}"></i> ${task.department}
+                  </span>
+                  <span class="px-2 py-1 rounded-full text-xs" style="color: ${priorities[task.priority]?.color || '#ccc'}">
+                    <i class="ph ${priorities[task.priority]?.icon || 'ph-circle'}"></i> ${task.priority}
+                  </span>
+                </div>
+                <h3 class="font-bold mb-1">${task.title}</h3>
+                <p class="text-sm opacity-80 mb-2">بواسطة: ${task.requester}</p>
+                <div class="flex justify-between mt-auto text-xs">
+                  <span>${task.status}</span>
+                  <span>${task.deadline ? new Date(task.deadline).toLocaleDateString('en-US') : 'غير محدد'}</span>
+                </div>
+              </div>
+            `).join('') || '<div class="text-gray-500 text-center col-span-3">لا توجد طلبات</div>'}
+          </div>
+        </div>
+      `;
+      
+      // إنشاء المخططات
+      setTimeout(() => {
+        createPerformanceChart(last7Days, newTasksPerDay, completedTasksPerDay);
+        createDepartmentsChart(departmentCounts);
+        createStatusChart(statusCounts);
+      }, 100);
+    }
+    
+    // دالة إنشاء مخطط الأداء
+    function createPerformanceChart(labels, newTasksData, completedTasksData) {
+      const ctx = document.getElementById('performanceChart')?.getContext('2d');
+      if (!ctx) return;
+      
+      // ترجمة التواريخ
+      const arabicLabels = labels.map(date => {
+        return moment(date).locale('ar').format('ddd DD MMM');
+      });
+      
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: arabicLabels,
+          datasets: [
+            {
+              label: 'طلبات جديدة',
+              data: newTasksData,
+              borderColor: '#3498db',
+              backgroundColor: 'rgba(52, 152, 219, 0.1)',
+              borderWidth: 2,
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: 'طلبات منجزة',
+              data: completedTasksData,
+              borderColor: '#2ecc71',
+              backgroundColor: 'rgba(46, 204, 113, 0.1)',
+              borderWidth: 2,
+              tension: 0.3,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                color: darkMode ? '#fff' : '#000'
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+              },
+              ticks: {
+                color: darkMode ? '#fff' : '#000'
+              }
+            },
+            x: {
+              grid: {
+                color: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+              },
+              ticks: {
+                color: darkMode ? '#fff' : '#000'
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    // دالة إنشاء مخطط الأقسام
+    function createDepartmentsChart(departmentCounts) {
+      const ctx = document.getElementById('departmentsChart')?.getContext('2d');
+      if (!ctx) return;
+      
+      const deptLabels = Object.keys(departmentCounts);
+      const deptData = Object.values(departmentCounts);
+      const deptColors = deptLabels.map(dept => departments[dept]?.color || '#ccc');
+      
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: deptLabels,
+          datasets: [{
+            data: deptData,
+            backgroundColor: deptColors,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: {
+                color: darkMode ? '#fff' : '#000',
+                font: {
+                  size: 10
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    // دالة إنشاء مخطط الحالات
+    function createStatusChart(statusCounts) {
+      const ctx = document.getElementById('statusChart')?.getContext('2d');
+      if (!ctx) return;
+      
+      const statusLabels = Object.keys(statusCounts);
+      const statusData = Object.values(statusCounts);
+      const statusColors = statusLabels.map(status => statuses[status]?.color || '#ccc');
+      
+      new Chart(ctx, {
+        type: 'polarArea',
+        data: {
+          labels: statusLabels,
+          datasets: [{
+            data: statusData,
+            backgroundColor: statusColors.map(color => hexToRgba(color, 0.7)),
+            borderColor: statusColors,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: {
+                color: darkMode ? '#fff' : '#000',
+                font: {
+                  size: 10
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    // دالة إنشاء قسم الطلبات
+    function renderTasks() {
+      // تطبيق الفلاتر
+      applyFilters();
+      
+      const activeTasks = filteredTasks.filter(t => t.status !== "منجز");
+      const doneTasks = filteredTasks.filter(t => t.status === "منجز");
+      
+      const bg = darkMode ? 'bg-gray-800' : 'bg-white';
+      const textColor = darkMode ? 'text-white' : 'text-black';
+      const input = darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-black';
+      const buttonBg = darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300';
+      
+      const app = document.getElementById("app");
+      app.innerHTML = `
+        <div class="flex justify-between items-center mb-6">
+          <h1 class="text-2xl font-bold">إدارة الطلبات</h1>
+          <div class="flex gap-4">
+            <button onclick="toggleMode()" class="px-4 py-2 rounded-full bg-[#ef5b0c] text-white hover:bg-orange-600 transition-all flex items-center gap-2">
+              <i class="ph ${darkMode ? 'ph-sun' : 'ph-moon'}"></i>
+              ${darkMode ? "الوضع النهاري" : "الوضع الليلي"}
+            </button>
+            <button onclick="exportTasks()" class="px-4 py-2 rounded-full ${buttonBg} ${textColor} transition-all flex items-center gap-2">
+              <i class="ph ph-download"></i>
+              تصدير
+            </button>
+          </div>
+        </div>
 
-function deleteTask(id) {
-  if (confirm("هل تريد حذف الطلب؟")) {
-    tasks = tasks.filter(t => t.id !== id);
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-    render();
-  }
-}
+        <!-- قسم البحث والفلاتر -->
+        <div class="p-6 rounded-2xl ${bg} shadow-md mb-8">
+          <div class="flex flex-col md:flex-row gap-4 flex-wrap">
+            <div class="flex-1 min-w-40">
+              <label for="search" class="text-sm text-gray-500 mb-1">بحث</label>
+              <div class="search-container relative">
+                <input id="search" type="text" placeholder="ابحث عن طلب..." class="p-3 pr-10 rounded-xl ${input} w-full" oninput="handleSearch(this.value)" />
+                <i class="ph ph-magnifying-glass absolute left-3 top-3 text-gray-500"></i>
+                <div class="search-results ${bg} border border-gray-700"></div>
+              </div>
+            </div>
+            <div class="flex-1 min-w-40">
+              <label for="department-filter" class="text-sm text-gray-500 mb-1">القسم</label>
+              <select id="department-filter" class="p-3 rounded-xl ${input} w-full" onchange="filterByDepartment(this.value)">
+                <option value="">كل الأقسام</option>
+                ${Object.keys(departments).map(dep => `<option>${dep}</option>`).join('')}
+              </select>
+            </div>
+            <div class="flex-1 min-w-40">
+              <label for="status-filter" class="text-sm text-gray-500 mb-1">الحالة</label>
+              <select id="status-filter" class="p-3 rounded-xl ${input} w-full" onchange="filterByStatus(this.value)">
+                <option value="">كل الحالات</option>
+                ${Object.keys(statuses).map(s => `<option>${s}</option>`).join('')}
+              </select>
+            </div>
+            <div class="flex-1 min-w-40">
+              <label for="priority-filter" class="text-sm text-gray-500 mb-1">الأولوية</label>
+              <select id="priority-filter" class="p-3 rounded-xl ${input} w-full" onchange="filterByPriority(this.value)">
+                <option value="">كل الأولويات</option>
+                ${Object.keys(priorities).map(p => `<option>${p}</option>`).join('')}
+              </select>
+            </div>
+            <div class="flex-1 min-w-40">
+              <label for="sort-by" class="text-sm text-gray-500 mb-1">ترتيب</label>
+              <select id="sort-by" class="p-3 rounded-xl ${input} w-full" onchange="sortBy(this.value)">
+                <option value="">بدون ترتيب</option>
+                <option value="deadline">موعد التسليم</option>
+                <option value="title">العنوان</option>
+                <option value="priority">الأولوية</option>
+                <option value="department">القسم</option>
+                <option value="createdAt">تاريخ الإنشاء</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex justify-end mt-4">
+            <button onclick="resetFilters()" class="px-4 py-2 rounded-lg ${buttonBg} ${textColor} transition-all flex items-center gap-2">
+              <i class="ph ph-x"></i>
+              إعادة تعيين الفلاتر
+            </button>
+          </div>
+        </div>
 
-function editTask(id) {
-  const task = tasks.find(t => t.id === id);
-  if (!task) return;
-  Object.keys(task).forEach(k => {
-    const el = document.getElementById(k);
-    if (el) el.value = task[k];
-  });
-  editId = id;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+        <!-- قسم الطلبات النشطة -->
+        <div class="mb-10">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold">الطلبات النشطة</h2>
+            <p class="text-sm text-gray-500">${activeTasks.length} طلب</p>
+          </div>
+          ${activeTasks.length > 0 ? `
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mb-10">
+              ${activeTasks.map(t => renderTaskCard(t)).join('')}
+            </div>
+          ` : '<div class="p-10 text-center text-gray-500 border border-dashed rounded-lg">لا توجد طلبات نشطة</div>'}
+        </div>
 
-function updateStatus(id, status) {
-  tasks = tasks.map(t => t.id === id ? { ...t, status } : t);
-  localStorage.setItem("tasks", JSON.stringify(tasks));
-  render();
-}
+        <!-- قسم الطلبات المنجزة -->
+        <div>
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold">الطلبات المنجزة</h2>
+            <p class="text-sm text-gray-500">${doneTasks.length} طلب</p>
+          </div>
+          ${doneTasks.length > 0 ? `
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              ${doneTasks.map(t => renderTaskCard(t, true)).join('')}
+            </div>
+          ` : '<div class="p-10 text-center text-gray-500 border border-dashed rounded-lg">لا توجد طلبات منجزة</div>'}
+        </div>
+      `;
+      
+      // تحديث حالة الفلاتر الحالية في واجهة المستخدم
+      if (currentFilter.department) {
+        document.getElementById('department-filter').value = currentFilter.department;
+      }
+      if (currentFilter.status) {
+        document.getElementById('status-filter').value = currentFilter.status;
+      }
+      if (currentFilter.priority) {
+        document.getElementById('priority-filter').value = currentFilter.priority;
+      }
+      if (currentSort.field) {
+        document.getElementById('sort-by').value = currentSort.field;
+      }
+      if (searchTerm) {
+        document.getElementById('search').value = searchTerm;
+      }
+    }
+    
+    // دالة إنشاء بطاقة الطلب
+    function renderTaskCard(task, isCompleted = false) {
+      const statusColor = statuses[task.status]?.color || "#999";
+      const bgColor = darkMode
+        ? `linear-gradient(to bottom, ${hexToRgba(statusColor, 0.2)}, #1f2937)`
+        : `linear-gradient(to bottom, ${hexToRgba(statusColor, 0.3)}, white)`;
 
-function toggleMode() {
-  darkMode = !darkMode;
-  render();
-}
+      const opacity = isCompleted ? "opacity-60" : "";
+      const borderColor = darkMode ? "#4b5563" : "#ccc";
+      const textColor = darkMode ? "text-gray-300" : "text-gray-800";
+      const priorityClass = task.priority === "عالي" ? "priority-high" : 
+                          task.priority === "متوسط" ? "priority-medium" : "priority-low";
 
-document.addEventListener("DOMContentLoaded", render);
-</script>
+      const deadlineDate = task.deadline ? new Date(task.deadline) : null;
+      const today = new Date();
+      const isOverdue = deadlineDate && deadlineDate < today && task.status !== "منجز";
+      const formattedDeadline = task.deadline ? new Date(task.deadline).toLocaleDateString('en-US') : "--";
+      
+      // إظهار التاغات
+      const tagsHTML = task.tags && task.tags.length > 0 ? `
+        <div class="flex flex-wrap gap-1 mt-2">
+          ${task.tags.map(tag => {
+            const tagInfo = tagsOptions.find(t => t.id === tag) || { id: tag, color: "#999" };
+            return `<span class="tag text-xs" style="background-color: ${hexToRgba(tagInfo.color, 0.2)}; color: ${tagInfo.color};">${tag}</span>`;
+          }).join('')}
+        </div>
+      ` : '';
+      
+      // إظهار المسؤول عن الطلب
+      const assignedHTML = task.assignedTo ? `
+        <div class="flex items-center mt-2">
+          <span class="text-xs text-gray-500 ml-2">المسؤول:</span>
+          <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs" style="background-color: #3498db; color: white;">
+            ${teamMembers.find(t => t.id === task.assignedTo)?.avatar || '?'}
+          </div>
+        </div>
+      ` : '';
+
+      return `
+        <div class="task-card p-5 rounded-2xl border shadow-md transition ${opacity} ${priorityClass} cursor-pointer" 
+             style="background: ${bgColor}; border-color: ${borderColor};"
+             onclick="showTaskDetails(${task.id})">
+          <div class="flex justify-between items-center mb-3">
+            <span class="px-3 py-1 text-xs font-semibold rounded-full flex items-center gap-1" 
+                  style="background:${departments[task.department]?.color || '#ccc'}; color:#000">
+              <i class="ph ${departments[task.department]?.icon || 'ph-folder'}"></i>
+              ${task.department || "غير محدد"}
+            </span>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-1 rounded-full text-xs ${darkMode ? 'text-white' : 'text-gray-800'} flex items-center gap-1">
+                <i class="ph ${priorities[task.priority]?.icon}" style="color: ${priorities[task.priority]?.color}"></i>
+                ${task.priority}
+              </span>
+              <span class="px-2 py-1 rounded-full text-xs ${darkMode ? 'text-white' : 'text-gray-800'} flex items-center gap-1">
+                <i class="ph ${statuses[task.status]?.icon}" style="color: ${statuses[task.status]?.color}"></i>
+                ${task.status}
+              </span>
+            </div>
+          </div>
+          <h2 class="text-lg font-bold mb-2">${task.title || "بدون عنوان"}</h2>
+          <div class="space-y-1 text-sm ${textColor}">
+            <p><i class="ph ph-user"></i> ${task.requester || "--"}</p>
+            ${task.size ? `<p><i class="ph ph-rulers"></i> المقاس: ${task.size}</p>` : ''}
+            ${task.type ? `<p><i class="ph ph-tag"></i> النوع: ${task.type}</p>` : ''}
+            <p><i class="ph ph-calendar"></i> التسليم: 
+              <span class="${isOverdue ? 'text-red-500 font-bold' : ''}">${formattedDeadline} ${isOverdue ? '<i class="ph ph-warning text-red-500"></i>' : ''}</span>
+            </p>
+            ${task.link ? `<p><i class="ph ph-link"></i> <a href="${task.link}" target="_blank" class="text-blue-400 underline hover:text-blue-600 cursor-pointer" onclick="event.stopPropagation()">رابط</a></p>` : ''}
+          </div>
+          ${tagsHTML}
+          ${assignedHTML}
+          <div class="flex justify-between items-center mt-3">
+            <span class="text-xs text-gray-500">${new Date(task.createdAt).toLocaleDateString('en-US')}</span>
+            <div class="flex gap-2">
+              <button onclick="editTask(${task.id}); event.stopPropagation();" class="text-blue-500 text-xl hover:text-blue-700 transition">
+                <i class="ph ph-pencil-simple"></i>
+              </button>
+              <button onclick="confirmDeleteTask(${task.id}); event.stopPropagation();" class="text-red-500 text-xl hover:text-red-700 transition">
+                <i class="ph ph-trash-simple"></i>
+              </button>
+            </div>
+          </div>
+        </div>`;
+    }
+    
+    // دالة تطبيق الفلاتر
+    function applyFilters() {
+      filteredTasks = tasks.filter(task => {
+        // تطبيق البحث
+        if (searchTerm && !task.title.toLowerCase().includes(searchTerm.toLowerCase()) && 
+            !task.requester.toLowerCase().includes(searchTerm.toLowerCase()) && 
+            !(task.description && task.description.toLowerCase().includes(searchTerm.toLowerCase()))) {
+          return false;
+        }
+        
+        // تطبيق القسم
+        if (currentFilter.department && task.department !== currentFilter.department) {
+          return false;
+        }
+        
+        // تطبيق الحالة
+        if (currentFilter.status && task.status !== currentFilter.status) {
+          return false;
+        }
+        
+        // تطبيق الأولوية
+        if (currentFilter.priority && task.priority !== currentFilter.priority) {
+          return false;
+        }
+        
+        // تطبيق التاغات
+        if (currentFilter.tags.length > 0) {
+          if (!task.tags || !currentFilter.tags.some(tag => task.tags.includes(tag))) {
+            return false;
+          }
+        }
+        
+        return true;
+      });
+      
+      // تطبيق الترتيب
+      if (currentSort.field) {
+        filteredTasks.sort((a, b) => {
+          let valA = a[currentSort.field] || '';
+          let valB = b[currentSort.field] || '';
+          
+          if (currentSort.field === 'deadline') {
+            valA = valA ? new Date(valA).getTime() : Infinity;
+            valB = valB ? new Date(valB).getTime() : Infinity;
+          } else if (currentSort.field === 'createdAt') {
+            valA = valA ? new Date(valA).getTime() : 0;
+            valB = valB ? new Date(valB).getTime() : 0;
+          }
+          
+          if (valA < valB) return currentSort.ascending ? -1 : 1;
+          if (valA > valB) return currentSort.ascending ? 1 : -1;
+          return 0;
+        });
+      }
+    }
+    
+    // دالة عرض تفاصيل الطلب
+    function showTaskDetails(id) {
+      const task = tasks.find(t => t.id === id);
+      if (!task) return;
+      
+      const taskComments = comments[id] || [];
+      const bg = darkMode ? 'bg-gray-700' : 'bg-gray-200';
+      const textColor = darkMode ? 'text-white' : 'text-black';
+      
+      const taskDetailsContent = document.getElementById('task-details-content');
+      
+      // حساب الوقت المنقضي منذ إنشاء الطلب
+      const created = new Date(task.createdAt);
+      const now = new Date();
+      const diffTime = Math.abs(now - created);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      // حساب نسبة الإنجاز (وهمي)
+      let progressPercentage = 0;
+      switch (task.status) {
+        case "منجز": progressPercentage = 100; break;
+        case "جاري العمل": progressPercentage = 60; break;
+        case "انتظار الرد": progressPercentage = 40; break;
+        case "انتظار المحتوى": progressPercentage = 30; break;
+        case "غير منجز": progressPercentage = 10; break;
+        default: progressPercentage = 0;
+      }
+      
+      taskDetailsContent.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- تفاصيل الطلب -->
+          <div class="md:col-span-2 space-y-4">
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="px-3 py-1 text-sm rounded-full" style="background:${departments[task.department]?.color || '#ccc'}; color:#000">
+                <i class="ph ${departments[task.department]?.icon || 'ph-folder'}"></i> ${task.department || "غير محدد"}
+              </span>
+              <span class="px-3 py-1 text-sm rounded-full" style="background:${hexToRgba(statuses[task.status]?.color || '#999', 0.2)}; color:${statuses[task.status]?.color || '#999'}">
+                <i class="ph ${statuses[task.status]?.icon || 'ph-circle'}"></i> ${task.status}
+              </span>
+              <span class="px-3 py-1 text-sm rounded-full" style="background:${hexToRgba(priorities[task.priority]?.color || '#999', 0.2)}; color:${priorities[task.priority]?.color || '#999'}">
+                <i class="ph ${priorities[task.priority]?.icon || 'ph-circle'}"></i> ${task.priority}
+              </span>
+            </div>
+            
+            <h1 class="text-2xl font-bold">${task.title}</h1>
+            
+            ${task.description ? `
+              <div class="p-4 rounded-lg ${bg} bg-opacity-50">
+                <h3 class="font-bold mb-2">وصف الطلب:</h3>
+                <p>${task.description}</p>
+              </div>
+            ` : ''}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div class="space-y-2">
+                <p><span class="text-gray-500">صاحب الطلب:</span> ${task.requester}</p>
+                <p><span class="text-gray-500">تاريخ الإنشاء:</span> ${new Date(task.createdAt).toLocaleString('en-US')}</p>
+                <p><span class="text-gray-500">منذ:</span> ${diffDays} يوم</p>
+                ${task.type ? `<p><span class="text-gray-500">النوع:</span> ${task.type}</p>` : ''}
+              </div>
+              <div class="space-y-2">
+                <p><span class="text-gray-500">المقاس:</span> ${task.size || "غير محدد"}</p>
+                <p><span class="text-gray-500">الموعد النهائي:</span> ${task.deadline ? new Date(task.deadline).toLocaleDateString('en-US') : "غير محدد"}</p>
+                ${task.link ? `<p><span class="text-gray-500">الرابط:</span> <a href="${task.link}" target="_blank" class="text-blue-400 underline hover:text-blue-600">فتح الرابط</a></p>` : ''}
+                ${task.completedAt ? `<p><span class="text-gray-500">تاريخ الإنجاز:</span> ${new Date(task.completedAt).toLocaleString('en-US')}</p>` : ''}
+              </div>
+            </div>
+            
+            <div class="mt-4">
+              <p class="text-gray-500 mb-2">نسبة الإنجاز:</p>
+              <div class="progress-bar">
+                <div class="progress-bar-fill" style="width: ${progressPercentage}%"></div>
+              </div>
+              <p class="text-sm text-right mt-1">${progressPercentage}%</p>
+            </div>
+            
+            ${task.tags && task.tags.length > 0 ? `
+              <div class="mt-4">
+                <p class="text-gray-500 mb-2">العلامات:</p>
+                <div class="flex flex-wrap gap-2">
+                  ${task.tags.map(tag => {
+                    const tagInfo = tagsOptions.find(t => t.id === tag) || { id: tag, color: "#999" };
+                    return `<span class="tag" style="background-color: ${hexToRgba(tagInfo.color, 0.2)}; color: ${tagInfo.color};">${tag}</span>`;
+                  }).join('')}
+                </div>
+              </div>
+            ` : ''}
+            
+            <div class="flex gap-4 mt-6">
+              <button onclick="editTask(${task.id})" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition flex items-center gap-2">
+                <i class="ph ph-pencil-simple"></i>
+                تعديل الطلب
+              </button>
+              <button onclick="duplicateTask(${task.id})" class="px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition flex items-center gap-2">
+                <i class="ph ph-copy"></i>
+                نسخ الطلب
+              </button>
+              <button onclick="confirmDeleteTask(${task.id})" class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition flex items-center gap-2">
+                <i class="ph ph-trash-simple"></i>
+                حذف الطلب
+              </button>
+            </div>
+          </div>
+          
+          <!-- قسم التعليقات -->
+          <div class="space-y-4">
+            <h2 class="text-lg font-bold">التعليقات والملاحظات</h2>
+            
+            <div class="max-h-96 overflow-y-auto space-y-3 p-2">
+              ${taskComments.length > 0 ? 
+                taskComments.map(comment => `
+                  <div class="comment rounded-lg p-3 ${bg}">
+                    <div class="flex justify-between items-start mb-2">
+                      <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-600 text-white">
+                          ${comment.user.charAt(0)}
+                        </div>
+                        <span class="font-bold">${comment.user}</span>
+                      </div>
+                      <span class="text-xs text-gray-500">${new Date(comment.timestamp).toLocaleString('en-US')}</span>
+                    </div>
+                    <p>${comment.text}</p>
+                  </div>
+                `).join('') 
+                : '<p class="text-gray-500 text-center">لا توجد تعليقات</p>'
+              }
+            </div>
+            
+            <div>
+              <textarea id="comment-text" rows="3" class="p-3 rounded-lg w-full resize-none ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-black'}" placeholder="أضف تعليقًا..."></textarea>
+              <button onclick="addComment(${task.id})" class="mt-2 px-4 py-2 bg-[#ef5b0c] text-white rounded-lg hover:bg-orange-600 transition w-full">
+                <i class="ph ph-plus"></i> إضافة تعليق
+              </button>
+            </div>
+            
+            <div class="mt-6">
+              <h3 class="font-bold mb-2">تغيير الحالة:</h3>
+              <div class="grid grid-cols-2 gap-2">
+                ${Object.keys(statuses).map(status => `
+                  <button onclick="updateStatus(${task.id}, '${status}')" 
+                      class="px-3 py-2 rounded-lg flex items-center justify-center gap-1 text-sm transition"
+                      style="background: ${hexToRgba(statuses[status].color, 0.2)}; color: ${statuses[status].color}; ${task.status === status ? 'border: 2px solid ' + statuses[status].color : ''}">
+                      <i class="ph ${statuses[status].icon}"></i>
+                      ${status}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+            
+            <div class="mt-4">
+              <h3 class="font-bold mb-2">تعيين إلى:</h3>
+              <div class="grid grid-cols-2 gap-2">
+                ${teamMembers.map(member => `
+                  <button onclick="assignTask(${task.id}, ${member.id})" 
+                      class="px-3 py-2 rounded-lg flex items-center gap-2 text-sm transition ${darkMode ? 'bg-gray-700' : 'bg-gray-200'} ${task.assignedTo === member.id ? 'border-2 border-blue-500' : ''}">
+                      <div class="w-6 h-6 rounded-full flex items-center justify-center" style="background-color: #3498db; color: white;">
+                        ${member.avatar}
+                      </div>
+                      ${member.name}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // إظهار المودال
+      document.getElementById('task-details-modal').classList.add('show');
+    }
+    
+    // دالة إضافة تعليق
+    function addComment(taskId) {
+      const commentText = document.getElementById('comment-text').value.trim();
+      if (!commentText) {
+        showNotification('يرجى كتابة التعليق قبل الإضافة', 'error');
+        return;
+      }
+      
+      // إنشاء التعليق
+      const newComment = {
+        id: Date.now(),
+        taskId: taskId,
+        user: 'المستخدم الحالي', // قابل للتغيير مع نظام المستخدمين
+        timestamp: new Date().toISOString(),
+        text: commentText
+      };
+      
+      // إضافة التعليق للمهمة
+      if (!comments[taskId]) {
+        comments[taskId] = [];
+      }
+      comments[taskId].push(newComment);
+      
+      // حفظ التعليقات
+      localStorage.setItem('comments', JSON.stringify(comments));
+      
+      // تسجيل النشاط
+      logActivity('إضافة تعليق', taskId, commentText.substring(0, 30) + (commentText.length > 30 ? '...' : ''));
+      
+      // تحديث واجهة المستخدم
+      showTaskDetails(taskId);
+      showNotification('تم إضافة التعليق بنجاح');
+    }
+    
+    // دالة تعيين المهمة لشخص
+    function assignTask(taskId, userId) {
+      const taskIndex = tasks.findIndex(t => t.id === taskId);
+      if (taskIndex === -1) return;
+      
+      const member = teamMembers.find(m => m.id === userId);
+      if (!member) return;
+      
+      // تحديث المهمة
+      tasks[taskIndex].assignedTo = userId;
+      
+      // حفظ التغييرات
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      
+      // تسجيل النشاط
+      logActivity('تعيين مسؤول', taskId, `تم تعيين المهمة إلى ${member.name}`);
+      
+      // تحديث واجهة المستخدم
+      showTaskDetails(taskId);
+      showNotification(`تم تعيين الطلب إلى ${member.name} بنجاح`);
+    }
+    
+    // دالة تحديث حالة المهمة
+    function updateStatus(id, status) {
+      const taskIndex = tasks.findIndex(t => t.id === id);
+      if (taskIndex === -1) return;
+      
+      const oldStatus = tasks[taskIndex].status;
+      tasks[taskIndex].status = status;
+      
+      // إذا تم تغيير الحالة إلى منجز، نضيف تاريخ الإنجاز
+      if (status === "منجز" && oldStatus !== "منجز") {
+        tasks[taskIndex].completedAt = new Date().toISOString();
+      } else if (status !== "منجز") {
+        // إذا تغيرت من منجز إلى غير منجز، نحذف تاريخ الإنجاز
+        delete tasks[taskIndex].completedAt;
+      }
+      
+      // حفظ التغييرات
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+      
+      // تسجيل النشاط
+      logActivity(status, id, `تم تغيير الحالة من ${oldStatus} إلى ${status}`);
+      
+      // تحديث الواجهة
+      updateUI();
+      
+      // إذا كان في المودال، نحدثه
+      if (document.getElementById('task-details-modal').classList.contains('show')) {
+        showTaskDetails(id);
+      }
+      
+      showNotification(`تم تحديث حالة الطلب إلى: ${status}`);
+    }
+    
+    // دالة إنشاء قسم التقارير
+    function renderReports() {
+      const bg = darkMode ? 'bg-gray-800' : 'bg-white';
+      
+      const app = document.getElementById("app");
+      app.innerHTML = `
+        <div class="flex justify-between items-center mb-6">
+          <h1 class="text-2xl font-bold">التقارير والإحصائيات</h1>
+          <div class="flex gap-4">
+            <button onclick="toggleMode()" class="px-4 py-2 rounded-full bg-[#ef5b0c] text-white hover:bg-orange-600 transition-all flex items-center gap-2">
+              <i class="ph ${darkMode ? 'ph-sun' : 'ph-moon'}"></i>
+              ${darkMode ? "الوضع النهاري" : "الوضع الليلي"}
+            </button>
+            <button onclick="exportReport()" class="px-4 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-all flex items-center gap-2">
+              <i class="ph ph-file-pdf"></i>
+              تصدير التقرير
+            </button>
+          </div>
+        </div>
+        
+        <!-- ملخص الإحصائيات -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div class="p-4 rounded-xl ${bg} shadow-md">
+            <div class="flex justify-between items-center">
+              <div>
+                <h3 class="text-sm text-gray-500">إجمالي الطلبات</h3>
+                <p class="text-2xl font-bold">${tasks.length}</p>
+              </div>
+              <div class="text-3xl text-blue-500">
+                <i class="ph ph-clipboard-text"></i>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl ${bg} shadow-md">
+            <div class="flex justify-between items-center">
+              <div>
+                <h3 class="text-sm text-gray-500">الطلبات المنجزة</h3>
+                <p class="text-2xl font-bold">${tasks.filter(t => t.status === "منجز").length}</p>
+              </div>
+              <div class="text-3xl text-green-500">
+                <i class="ph ph-check-circle"></i>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl ${bg} shadow-md">
+            <div class="flex justify-between items-center">
+              <div>
+                <h3 class="text-sm text-gray-500">الطلبات المتأخرة</h3>
+                <p class="text-2xl font-bold">${tasks.filter(t => {
+                  if (!t.deadline || t.status === "منجز" || t.status === "ملغي") return false;
+                  return new Date(t.deadline) < new Date();
+                }).length}</p>
+              </div>
+              <div class="text-3xl text-red-500">
+                <i class="ph ph-clock-countdown"></i>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl ${bg} shadow-md">
+            <div class="flex justify-between items-center">
+              <div>
+                <h3 class="text-sm text-gray-500">نسبة الإنجاز</h3>
+                <p class="text-2xl font-bold">${tasks.length > 0 ? Math.round((tasks.filter(t => t.status === "منجز").length / tasks.length) * 100) : 0}%</p>
+              </div>
+              <div class="text-3xl text-purple-500">
+                <i class="ph ph-chart-pie"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- مخططات التقارير -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div class="p-6 rounded-xl ${bg} shadow-md">
+            <h2 class="text-lg font-bold mb-4">توزيع الطلبات حسب القسم</h2>
+            <div class="h-60">
+              <canvas id="reportDepartmentsChart"></canvas>
+            </div>
+          </div>
+          
+          <div class="p-6 rounded-xl ${bg} shadow-md">
+            <h2 class="text-lg font-bold mb-4">توزيع الطلبات حسب الحالة</h2>
+            <div class="h-60">
+              <canvas id="reportStatusChart"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <!-- سجل الأنشطة -->
+        <div class="p-6 rounded-xl ${bg} shadow-md mb-8">
+          <h2 class="text-lg font-bold mb-4">سجل الأنشطة</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-gray-700">
+                  <th class="px-4 py-2 text-right">التاريخ</th>
+                  <th class="px-4 py-2 text-right">الطلب</th>
+                  <th class="px-4 py-2 text-right">النشاط</th>
+                  <th class="px-4 py-2 text-right">التفاصيل</th>
+                  <th class="px-4 py-2 text-right">المستخدم</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${activityLog.slice(0, 20).map(log => `
+                  <tr class="border-b border-gray-700 hover:bg-gray-700">
+                    <td class="px-4 py-2 text-sm">${new Date(log.timestamp).toLocaleString('en-US')}</td>
+                    <td class="px-4 py-2">${log.taskTitle}</td>
+                    <td class="px-4 py-2">
+                      <span class="px-2 py-1 rounded-full text-xs" style="background: ${hexToRgba(statuses[log.action]?.color || '#999', 0.2)}; color: ${statuses[log.action]?.color || '#999'}">
+                        ${log.action}
+                      </span>
+                    </td>
+                    <td class="px-4 py-2">${log.details || '-'}</td>
+                    <td class="px-4 py-2">${log.user}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <!-- الطلبات المتأخرة -->
+        <div class="p-6 rounded-xl ${bg} shadow-md mb-8">
+          <h2 class="text-lg font-bold mb-4">الطلبات المتأخرة</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-gray-700">
+                  <th class="px-4 py-2 text-right">العنوان</th>
+                  <th class="px-4 py-2 text-right">القسم</th>
+                  <th class="px-4 py-2 text-right">الموعد النهائي</th>
+                  <th class="px-4 py-2 text-right">التأخير (بالأيام)</th>
+                  <th class="px-4 py-2 text-right">الحالة</th>
+                  <th class="px-4 py-2 text-right">صاحب الطلب</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${tasks.filter(t => {
+                  if (!t.deadline || t.status === "منجز" || t.status === "ملغي") return false;
+                  return new Date(t.deadline) < new Date();
+                }).map(task => {
+                  const deadline = new Date(task.deadline);
+                  const now = new Date();
+                  const diffTime = Math.abs(now - deadline);
+                  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                  
+                  return `
+                    <tr class="border-b border-gray-700 hover:bg-gray-700 cursor-pointer" onclick="showTaskDetails(${task.id})">
+                      <td class="px-4 py-2 font-bold">${task.title}</td>
+                      <td class="px-4 py-2">
+                        <span class="px-2 py-1 rounded-full text-xs" style="background: ${departments[task.department]?.color || '#ccc'}; color: #000">
+                          ${task.department}
+                        </span>
+                      </td>
+                      <td class="px-4 py-2 text-sm">${new Date(task.deadline).toLocaleDateString('en-US')}</td>
+                      <td class="px-4 py-2 font-bold text-red-500">${diffDays} يوم</td>
+                      <td class="px-4 py-2">
+                        <span class="px-2 py-1 rounded-full text-xs" style="background: ${hexToRgba(statuses[task.status]?.color || '#999', 0.2)}; color: ${statuses[task.status]?.color || '#999'}">
+                          ${task.status}
+                        </span>
+                      </td>
+                      <td class="px-4 py-2">${task.requester}</td>
+                    </tr>
+                  `;
+                }).join('') || `
+                  <tr>
+                    <td colspan="6" class="px-4 py-8 text-center text-gray-500">لا توجد طلبات متأخرة</td>
+                  </tr>
+                `}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+      
+      // إنشاء المخططات
+      setTimeout(() => {
+        // حساب الطلبات حسب القسم
+        const departmentCounts = {};
+        Object.keys(departments).forEach(dept => {
+          departmentCounts[dept] = tasks.filter(t => t.department === dept).length;
+        });
+        
+        // حساب الطلبات حسب الحالة
+        const statusCounts = {};
+        Object.keys(statuses).forEach(status => {
+          statusCounts[status] = tasks.filter(t => t.status === status).length;
+        });
+        
+        createReportDepartmentsChart(departmentCounts);
+        createReportStatusChart(statusCounts);
+      }, 100);
+    }
+    
+    // دالة إنشاء مخطط التقارير للأقسام
+    function createReportDepartmentsChart(departmentCounts) {
+      const ctx = document.getElementById('reportDepartmentsChart')?.getContext('2d');
+      if (!ctx) return;
+      
+      const deptLabels = Object.keys(departmentCounts);
+      const deptData = Object.values(departmentCounts);
+      const deptColors = deptLabels.map(dept => departments[dept]?.color || '#ccc');
+      
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: deptLabels,
+          datasets: [{
+            label: 'عدد الطلبات',
+            data: deptData,
+            backgroundColor: deptColors.map(color => hexToRgba(color, 0.7)),
+            borderColor: deptColors,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'y',
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              ticks: {
+                color: darkMode ? '#fff' : '#000'
+              },
+              grid: {
+                color: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+              }
+            },
+            x: {
+              ticks: {
+                color: darkMode ? '#fff' : '#000'
+              },
+              grid: {
+                color: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    // دالة إنشاء مخطط التقارير للحالات
+    function createReportStatusChart(statusCounts) {
+      const ctx = document.getElementById('reportStatusChart')?.getContext('2d');
+      if (!ctx) return;
+      
+      const statusLabels = Object.keys(statusCounts);
+      const statusData = Object.values(statusCounts);
+      const statusColors = statusLabels.map(status => statuses[status]?.color || '#ccc');
+      
+      new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: statusLabels,
+          datasets: [{
+            data: statusData,
+            backgroundColor: statusColors.map(color => hexToRgba(color, 0.7)),
+            borderColor: statusColors,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: {
+                color: darkMode ? '#fff' : '#000'
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    // دالة إنشاء قسم الإعدادات
+    function renderSettings() {
+      const bg = darkMode ? 'bg-gray-800' : 'bg-white';
+      const textColor = darkMode ? 'text-white' : 'text-black';
+      const input = darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-black';
+      
+      const app = document.getElementById("app");
+      app.innerHTML = `
+        <div class="flex justify-between items-center mb-6">
+          <h1 class="text-2xl font-bold">الإعدادات</h1>
+          <div>
+            <button onclick="toggleMode()" class="px-4 py-2 rounded-full bg-[#ef5b0c] text-white hover:bg-orange-600 transition-all flex items-center gap-2">
+              <i class="ph ${darkMode ? 'ph-sun' : 'ph-moon'}"></i>
+              ${darkMode ? "الوضع النهاري" : "الوضع الليلي"}
+            </button>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- المظهر -->
+          <div class="p-6 rounded-xl ${bg} shadow-md">
+            <h2 class="text-lg font-bold mb-4">المظهر</h2>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="theme" value="dark" ${darkMode ? 'checked' : ''} onchange="setDarkMode(true)">
+                  <span>الوضع الداكن</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="theme" value="light" ${!darkMode ? 'checked' : ''} onchange="setDarkMode(false)">
+                  <span>الوضع الفاتح</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <!-- الإشعارات -->
+          <div class="p-6 rounded-xl ${bg} shadow-md">
+            <h2 class="text-lg font-bold mb-4">الإشعارات</h2>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" id="notification-enabled" checked>
+                  <span>تفعيل الإشعارات</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" id="notification-sound" checked>
+                  <span>صوت الإشعارات</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <!-- المستخدم -->
+          <div class="p-6 rounded-xl ${bg} shadow-md">
+            <h2 class="text-lg font-bold mb-4">المستخدم</h2>
+            <div class="space-y-4">
+              <div>
+                <label class="text-sm text-gray-500 mb-1">اسم المستخدم</label>
+                <input type="text" class="p-3 rounded-lg ${input} w-full" value="المستخدم الحالي">
+              </div>
+              <div>
+                <label class="text-sm text-gray-500 mb-1">البريد الإلكتروني</label>
+                <input type="email" class="p-3 rounded-lg ${input} w-full" value="user@example.com">
+              </div>
+            </div>
+          </div>
+          
+          <!-- النسخ الاحتياطي واستعادة البيانات -->
+          <div class="p-6 rounded-xl ${bg} shadow-md col-span-full">
+            <h2 class="text-lg font-bold mb-4">النسخ الاحتياطي واستعادة البيانات</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <button onclick="exportData()" class="p-3 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-200'} ${textColor} hover:bg-gray-600 transition w-full flex items-center justify-center gap-2">
+                  <i class="ph ph-download"></i>
+                  تصدير جميع البيانات
+                </button>
+              </div>
+              <div>
+                <div class="relative">
+                  <input type="file" id="import-file" accept=".json" class="absolute inset-0 opacity-0 cursor-pointer" onchange="importData(event)">
+                  <button class="p-3 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-200'} ${textColor} hover:bg-gray-600 transition w-full flex items-center justify-center gap-2">
+                    <i class="ph ph-upload"></i>
+                    استيراد البيانات
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- إدارة البيانات -->
+          <div class="p-6 rounded-xl ${bg} shadow-md col-span-full">
+            <h2 class="text-lg font-bold mb-4 text-red-500">خيارات متقدمة</h2>
+            <div class="space-y-4">
+              <p class="text-gray-500">تحذير: هذه الخيارات ستؤدي إلى حذف البيانات نهائياً ولا يمكن التراجع عنها.</p>
+              <div class="flex flex-wrap gap-4">
+                <button onclick="clearTasks()" class="p-3 rounded-lg bg-red-600 text-white hover:bg-red-700 transition flex items-center gap-2">
+                  <i class="ph ph-trash"></i>
+                  حذف جميع الطلبات
+                </button>
+                <button onclick="clearComments()" class="p-3 rounded-lg bg-red-600 text-white hover:bg-red-700 transition flex items-center gap-2">
+                  <i class="ph ph-chats"></i>
+                  حذف جميع التعليقات
+                </button>
+                <button onclick="clearActivityLog()" class="p-3 rounded-lg bg-red-600 text-white hover:bg-red-700 transition flex items-center gap-2">
+                  <i class="ph ph-clock"></i>
+                  حذف سجل الأنشطة
+                </button>
+                <button onclick="resetAll()" class="p-3 rounded-lg bg-red-800 text-white hover:bg-red-900 transition flex items-center gap-2">
+                  <i class="ph ph-prohibit"></i>
+                  إعادة تعيين النظام بالكامل
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    
+    // دالة تصفية المهام حسب القسم
+    function filterByDepartment(value) {
+      currentFilter.department = value || null;
+      updateUI();
+    }
+    
+    // دالة تصفية المهام حسب الحالة
+    function filterByStatus(value) {
+      currentFilter.status = value || null;
+      updateUI();
+    }
+    
+    // دالة تصفية المهام حسب الأولوية
+    function filterByPriority(value) {
+      currentFilter.priority = value || null;
+      updateUI();
+    }
+    
+    // دالة البحث
+    function handleSearch(value) {
+      searchTerm = value;
+      updateUI();
+    }
+    
+    // دالة ترتيب المهام
+    function sortBy(value) {
+      if (!value) {
+        currentSort = { field: null, ascending: true };
+      } else if (currentSort.field === value) {
+        currentSort.ascending = !currentSort.ascending;
+      } else {
+        currentSort = { field: value, ascending: true };
+      }
+      updateUI();
+    }
+    
+    // دالة إعادة تعيين الفلاتر
+    function resetFilters() {
+      currentFilter = { department: null, status: null, priority: null, tags: [] };
+      searchTerm = '';
+      currentSort = { field: null, ascending: true };
+      updateUI();
+      showNotification('تم إعادة تعيين الفلاتر');
+    }
+    
+    // دالة فتح مودال إضافة/تعديل طلب
+    function openTaskModal() {
+      const modalTitle = document.getElementById('modal-title');
+      const taskForm = document.getElementById('task-form');
+      const bg = darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-black';
+      
+      modalTitle.textContent = editId ? 'تعديل الطلب' : 'إضافة طلب جديد';
+      
+      // إعداد حقول النموذج
+      const formFields = [
+        { id: "title", label: "عنوان الطلب", required: true },
+        { id: "requester", label: "اسم صاحب الطلب", required: true },
+        { id: "type", label: "نوع الطلب" },
+        { id: "size", label: "مقاس التصميم" },
+        { id: "link", label: "الرابط", type: "url" },
+        { id: "deadline", label: "تاريخ التسليم", type: "date" }
+      ];
+      
+      // إنشاء النموذج
+      taskForm.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          ${formFields.map(f => `
+            <div class="flex flex-col">
+              <label for="${f.id}" class="text-sm text-gray-500 mb-1">${f.label} ${f.required ? '<span class="text-red-500">*</span>' : ''}</label>
+              <input id="${f.id}" type="${f.type || 'text'}" class="p-3 rounded-xl ${bg} w-full" ${f.required ? 'required' : ''} />
+            </div>
+          `).join('')}
+          
+          <div class="flex flex-col">
+            <label for="department" class="text-sm text-gray-500 mb-1">القسم</label>
+            <select id="department" class="p-3 rounded-xl ${bg}">
+              ${Object.keys(departments).map(dep => `<option>${dep}</option>`).join('')}
+            </select>
+          </div>
+          
+          <div class="flex flex-col">
+            <label for="priority" class="text-sm text-gray-500 mb-1">الأولوية</label>
+            <select id="priority" class="p-3 rounded-xl ${bg}">
+              ${Object.keys(priorities).map(p => `<option>${p}</option>`).join('')}
+            </select>
+          </div>
+          
+          <div class="flex flex-col col-span-full">
+            <label for="description" class="text-sm text-gray-500 mb-1">تفاصيل الطلب</label>
+            <textarea id="description" rows="3" class="p-3 rounded-xl ${bg} resize-none"></textarea>
+          </div>
+          
+          <div class="flex flex-col col-span-full">
+            <label class="text-sm text-gray-500 mb-1">العلامات (التاغات)</label>
+            <div class="flex flex-wrap gap-2 mt-1">
+              ${tagsOptions.map(tag => `
+                <label class="tag cursor-pointer" style="background-color: ${hexToRgba(tag.color, 0.2)}; color: ${tag.color};">
+                  <input type="checkbox" class="tag-checkbox mr-1" value="${tag.id}"> ${tag.id}
+                </label>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex gap-4 mt-6">
+          <button onclick="saveTask()" class="flex-1 bg-[#ef5b0c] py-3 rounded-xl text-white font-bold hover:bg-orange-600 transition-all flex items-center justify-center gap-2">
+            <i class="ph ${editId ? 'ph-pencil-simple' : 'ph-plus'}"></i>
+            ${editId ? "تحديث الطلب" : "إضافة الطلب"}
+          </button>
+          ${editId ? `
+            <button onclick="cancelEdit()" class="flex-1 bg-gray-600 py-3 rounded-xl text-white font-bold hover:bg-gray-700 transition-all flex items-center justify-center gap-2">
+              <i class="ph ph-x"></i>
+              إلغاء التعديل
+            </button>
+          ` : ''}
+        </div>
+      `;
+      
+      // تعبئة البيانات في النموذج إذا كان في وضع التعديل
+      if (editId) {
+        const task = tasks.find(t => t.id === editId);
+        if (task) {
+          document.getElementById("title").value = task.title || "";
+          document.getElementById("requester").value = task.requester || "";
+          document.getElementById("type").value = task.type || "";
+          document.getElementById("size").value = task.size || "";
+          document.getElementById("link").value = task.link || "";
+          document.getElementById("deadline").value = task.deadline ? task.deadline.split('T')[0] : "";
+          document.getElementById("department").value = task.department || "كرييتف";
+          document.getElementById("priority").value = task.priority || "متوسط";
+          document.getElementById("description").value = task.description || "";
+          
+          // تحديد العلامات المختارة
+          if (task.tags && task.tags.length > 0) {
+            document.querySelectorAll('.tag-checkbox').forEach(checkbox => {
+              if (task.tags.includes(checkbox.value)) {
+                checkbox.checked = true;
+              }
+            });
+          }
+        }
+      }
+      
+      // إظهار المودال
+      document.getElementById('task-modal').classList.add('show');
+    }
+    
+    // دالة حفظ الطلب (إضافة أو تعديل)
+    function saveTask() {
+      // التحقق من الحقول المطلوبة
+      if (!val("title") || !val("requester")) {
+        showNotification("يرجى تعبئة جميع الحقول المطلوبة", "error");
+        return;
+      }
+      
+      // جمع العلامات المحددة
+      const selectedTags = [];
+      document.querySelectorAll('.tag-checkbox:checked').forEach(checkbox => {
+        selectedTags.push(checkbox.value);
+      });
+      
+      try {
+        if (editId) {
+          // تحديث المهمة الموجودة
+          const taskIndex = tasks.findIndex(t => t.id === editId);
+          if (taskIndex !== -1) {
+            const oldTask = tasks[taskIndex];
+            tasks[taskIndex] = {
+              ...oldTask,
+              title: val("title"),
+              requester: val("requester"),
+              type: val("type"),
+              size: val("size"),
+              link: val("link"),
+              deadline: val("deadline"),
+              department: val("department"),
+              priority: val("priority"),
+              description: val("description"),
+              tags: selectedTags,
+              updatedAt: new Date().toISOString()
+            };
+            
+            // تسجيل النشاط
+            logActivity('تعديل طلب', editId);
+            
+            showNotification(`تم تحديث الطلب بنجاح: ${val("title")}`);
+          }
+          editId = null;
+        } else {
+          // إضافة مهمة جديدة
+          const newTask = {
+            id: Date.now(),
+            title: val("title"),
+            requester: val("requester"),
+            type: val("type"),
+            size: val("size"),
+            link: val("link"),
+            deadline: val("deadline"),
+            department: val("department"),
+            priority: val("priority"),
+            description: val("description"),
+            status: "غير منجز",
+            tags: selectedTags,
+            createdAt: new Date().toISOString(),
+            assignedTo: null,
+            attachments: []
+          };
+          
+          tasks.unshift(newTask);  // إضافة في بداية المصفوفة
+          
+          // تسجيل النشاط
+          logActivity('إضافة طلب', newTask.id);
+          
+          showNotification(`تم إضافة الطلب بنجاح: ${val("title")}`);
+        }
+        
+        // حفظ التغييرات
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        
+        // إغلاق المودال وتحديث الواجهة
+        document.getElementById('task-modal').classList.remove('show');
+        updateUI();
+        
+      } catch (e) {
+        console.error("خطأ في إضافة/تعديل المهمة:", e);
+        showNotification("حدث خطأ أثناء حفظ البيانات", "error");
+      }
+    }
+    
+    // دالة إلغاء التعديل
+    function cancelEdit() {
+      editId = null;
+      document.getElementById('task-modal').classList.remove('show');
+    }
+    
+    // دالة حذف الطلب
+    function deleteTask() {
+      if (!deleteTaskId) return;
+      
+      try {
+        // البحث عن اسم الطلب للنشاط
+        const task = tasks.find(t => t.id === deleteTaskId);
+        const taskTitle = task ? task.title : 'طلب محذوف';
+        
+        // حذف المهمة
+        tasks = tasks.filter(t => t.id !== deleteTaskId);
+        
+        // حذف التعليقات المتعلقة بها
+        if (comments[deleteTaskId]) {
+          delete comments[deleteTaskId];
+        }
+        
+        // تسجيل النشاط
+        logActivity('حذف طلب', deleteTaskId, taskTitle);
+        
+        // حفظ التغييرات
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        localStorage.setItem("comments", JSON.stringify(comments));
+        
+        // إغلاق مودال التأكيد وتحديث الواجهة
+        document.getElementById('confirm-modal').classList.remove('show');
+        updateUI();
+        
+        showNotification("تم حذف الطلب بنجاح");
+        
+      } catch (e) {
+        console.error("خطأ في حذف المهمة:", e);
+        showNotification("حدث خطأ أثناء حذف البيانات", "error");
+      }
+      
+      deleteTaskId = null;
+    }
+    
+    // دالة تأكيد حذف الطلب
+    function confirmDeleteTask(id) {
+      deleteTaskId = id;
+      document.getElementById('confirm-modal').classList.add('show');
+    }
+    
+    // دالة نسخ الطلب
+    function duplicateTask(id) {
+      const task = tasks.find(t => t.id === id);
+      if (task) {
+        const newTask = {
+          ...task,
+          id: Date.now(),
+          title: `نسخة من ${task.title}`,
+          status: "غير منجز",
+          createdAt: new Date().toISOString(),
+          assignedTo: null // إزالة المسؤول
+        };
+        
+        // حذف تاريخ الإنجاز إن وجد
+        if (newTask.completedAt) {
+          delete newTask.completedAt;
+        }
+        
+        tasks.unshift(newTask);
+        
+        // تسجيل النشاط
+        logActivity('نسخ طلب', newTask.id, `نسخة من: ${task.title}`);
+        
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        updateUI();
+        
+        showNotification(`تم نسخ الطلب بنجاح: ${newTask.title}`);
+      }
+    }
+    
+    // دالة تعديل الطلب
+    function editTask(id) {
+      editId = id;
+      openTaskModal();
+    }
+    
+    // دالة تبديل وضع الألوان
+    function toggleMode() {
+      darkMode = !darkMode;
+      localStorage.setItem("darkMode", darkMode);
+      updateUI();
+    }
+    
+    // دالة تعيين وضع الألوان
+    function setDarkMode(isDark) {
+      darkMode = isDark;
+      localStorage.setItem("darkMode", darkMode);
+      updateUI();
+    }
+    
+    // دالة تصدير البيانات
+    function exportData() {
+      try {
+        const data = {
+          tasks: tasks,
+          comments: comments,
+          activityLog: activityLog,
+          version: "2.0",
+          exportDate: new Date().toISOString()
+        };
+        
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", `task_manager_backup_${new Date().toISOString().slice(0, 10)}.json`);
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+        
+        showNotification("تم تصدير البيانات بنجاح");
+      } catch (e) {
+        console.error("خطأ في تصدير البيانات:", e);
+        showNotification("حدث خطأ أثناء تصدير البيانات", "error");
+      }
+    }
+    
+    // دالة تصدير الطلبات فقط
+    function exportTasks() {
+      try {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tasks, null, 2));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", `tasks_export_${new Date().toISOString().slice(0, 10)}.json`);
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+        
+        showNotification("تم تصدير الطلبات بنجاح");
+      } catch (e) {
+        console.error("خطأ في تصدير الطلبات:", e);
+        showNotification("حدث خطأ أثناء تصدير الطلبات", "error");
+      }
+    }
+    
+    // دالة تصدير تقرير
+    function exportReport() {
+      showNotification("جاري تصدير التقرير...");
+      setTimeout(() => {
+        try {
+          // إنشاء نص التقرير
+          const completedTasks = tasks.filter(t => t.status === "منجز").length;
+          const totalTasks = tasks.length;
+          const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+          
+          const reportData = {
+            title: "تقرير نظام إدارة الطلبات",
+            date: new Date().toLocaleDateString('en-US'),
+            summary: {
+              totalTasks,
+              completedTasks,
+              pendingTasks: tasks.filter(t => t.status === "غير منجز").length,
+              inProgressTasks: tasks.filter(t => t.status === "جاري العمل").length,
+              completionRate: completionRate + "%",
+              overdueTasks: tasks.filter(t => {
+                if (!t.deadline || t.status === "منجز" || t.status === "ملغي") return false;
+                return new Date(t.deadline) < new Date();
+              }).length
+            },
+            departmentStats: {},
+            statusStats: {},
+            recentActivity: activityLog.slice(0, 10)
+          };
+          
+          // إحصاءات الأقسام
+          Object.keys(departments).forEach(dept => {
+            reportData.departmentStats[dept] = tasks.filter(t => t.department === dept).length;
+          });
+          
+          // إحصاءات الحالات
+          Object.keys(statuses).forEach(status => {
+            reportData.statusStats[status] = tasks.filter(t => t.status === status).length;
+          });
+          
+          const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(reportData, null, 2));
+          const downloadAnchorNode = document.createElement('a');
+          downloadAnchorNode.setAttribute("href", dataStr);
+          downloadAnchorNode.setAttribute("download", `report_${new Date().toISOString().slice(0, 10)}.json`);
+          document.body.appendChild(downloadAnchorNode);
+          downloadAnchorNode.click();
+          downloadAnchorNode.remove();
+          
+          showNotification("تم تصدير التقرير بنجاح");
+        } catch (e) {
+          console.error("خطأ في تصدير التقرير:", e);
+          showNotification("حدث خطأ أثناء تصدير التقرير", "error");
+        }
+      }, 500);
+    }
+    
+    // دالة استيراد البيانات
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          
+          if (data.tasks) {
+            tasks = data.tasks;
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+          }
+          
+          if (data.comments) {
+            comments = data.comments;
+            localStorage.setItem("comments", JSON.stringify(comments));
+          }
+          
+          if (data.activityLog) {
+            activityLog = data.activityLog;
+            localStorage.setItem("activityLog", JSON.stringify(activityLog));
+          }
+          
+          updateUI();
+          showNotification("تم استيراد البيانات بنجاح");
+        } catch (e) {
+          console.error("خطأ في استيراد البيانات:", e);
+          showNotification("حدث خطأ أثناء استيراد البيانات", "error");
+        }
+      };
+      
+      reader.readAsText(file);
+    }
+    
+    // دالة حذف جميع الطلبات
+    function clearTasks() {
+      if (confirm("هل أنت متأكد من رغبتك في حذف جميع الطلبات؟ لا يمكن التراجع عن هذه العملية.")) {
+        tasks = [];
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        updateUI();
+        showNotification("تم حذف جميع الطلبات بنجاح");
+      }
+    }
+    
+    // دالة حذف جميع التعليقات
+    function clearComments() {
+      if (confirm("هل أنت متأكد من رغبتك في حذف جميع التعليقات؟ لا يمكن التراجع عن هذه العملية.")) {
+        comments = {};
+        localStorage.setItem("comments", JSON.stringify(comments));
+        updateUI();
+        showNotification("تم حذف جميع التعليقات بنجاح");
+      }
+    }
+    
+    // دالة حذف سجل الأنشطة
+    function clearActivityLog() {
+      if (confirm("هل أنت متأكد من رغبتك في حذف سجل الأنشطة؟ لا يمكن التراجع عن هذه العملية.")) {
+        activityLog = [];
+        localStorage.setItem("activityLog", JSON.stringify(activityLog));
+        updateUI();
+        showNotification("تم حذف سجل الأنشطة بنجاح");
+      }
+    }
+    
+    // دالة إعادة تعيين النظام بالكامل
+    function resetAll() {
+      if (confirm("هل أنت متأكد من رغبتك في إعادة تعيين النظام بالكامل؟ سيتم حذف جميع البيانات ولا يمكن التراجع عن هذه العملية.")) {
+        tasks = [];
+        comments = {};
+        activityLog = [];
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        localStorage.setItem("comments", JSON.stringify(comments));
+        localStorage.setItem("activityLog", JSON.stringify(activityLog));
+        updateUI();
+        showNotification("تم إعادة تعيين النظام بنجاح");
+      }
+    }
+    
+    // =================== محملات الأحداث ===================
+    
+    // تبديل الشريط الجانبي
+    document.getElementById('toggle-sidebar').addEventListener('click', () => {
+      sidebarCollapsed = !sidebarCollapsed;
+      updateUI();
+    });
+    
+    // التنقل بين الأقسام
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        activeSection = tab.getAttribute('data-section');
+        updateUI();
+      });
+    });
+    
+    // زر إضافة طلب جديد
+    document.getElementById('add-task-btn').addEventListener('click', () => {
+      editId = null;
+      openTaskModal();
+    });
+    
+    // إغلاق مودال الطلب
+    document.getElementById('close-modal').addEventListener('click', () => {
+      document.getElementById('task-modal').classList.remove('show');
+    });
+    
+    // إغلاق مودال تفاصيل الطلب
+    document.getElementById('close-details-modal').addEventListener('click', () => {
+      document.getElementById('task-details-modal').classList.remove('show');
+    });
+    
+    // مودال تأكيد الحذف
+    document.getElementById('confirm-delete').addEventListener('click', deleteTask);
+    document.getElementById('cancel-delete').addEventListener('click', () => {
+      document.getElementById('confirm-modal').classList.remove('show');
+      deleteTaskId = null;
+    });
+    
+    // إغلاق المودالات عند النقر خارجها
+    document.querySelectorAll('.modal-backdrop').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('show');
+        }
+      });
+    });
+    
+    // =================== التهيئة الأولية ===================
+    
+    // بدء تشغيل التطبيق
+    updateUI();
+  </script>
 </body>
 </html>
