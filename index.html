@@ -32,24 +32,27 @@
     }
     
     .notification {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      padding: 15px 20px;
-      border-radius: 8px;
-      background: #ef5b0c;
-      color: white;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      z-index: 1000;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.3s, transform 0.3s;
-    }
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  padding: 20px 30px;
+  border-radius: 12px;
+  background: #ef5b0c;
+  color: white;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  max-width: 90%;
+  text-align: center;
+  font-size: 1.1rem;
+}
     
-    .notification.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
+.notification.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
     
     .skeleton {
       background: linear-gradient(90deg, #2a374a 25%, #3c4758 50%, #2a374a 75%);
