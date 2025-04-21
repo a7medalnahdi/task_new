@@ -550,6 +550,8 @@
     
     // دالة تحديث عنصر واجهة المستخدم بناءً على القسم النشط
     function updateUI() {
+      checkUpcomingDeadlines();
+
       // التبديل بين الأقسام
       document.querySelectorAll('.tab').forEach(tab => {
         const section = tab.getAttribute('data-section');
@@ -2427,7 +2429,25 @@
     // =================== التهيئة الأولية ===================
     
     // بدء تشغيل التطبيق
-    updateUI();
+    updateUI(); 
+
+    function checkUpcomingDeadlines() {
+  const now = new Date();
+  const twoDaysFromNow = new Date();
+  twoDaysFromNow.setDate(now.getDate() + 2);
+
+  const upcomingTasks = tasks.filter(t => {
+    if (!t.deadline || t.status === "منجز" || t.status === "ملغي") return false;
+    const deadline = new Date(t.deadline);
+    return deadline > now && deadline <= twoDaysFromNow;
+  });
+
+  if (upcomingTasks.length > 0) {
+    const titles = upcomingTasks.map(t => t.title).join("، ");
+    showNotification(`📌 اقترب موعد التسليم للطلبات: ${titles}`, "warning");
+  }
+}
+
   </script>
 </body>
 </html>
