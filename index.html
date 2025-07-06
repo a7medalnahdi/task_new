@@ -12,73 +12,129 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
     
-    * {
-      font-family: 'Tajawal', sans-serif;
+    /* المتغيرات الأساسية للألوان والظلال */
+    :root {
+      --primary-orange: #ef5b0c;
+      --primary-orange-hover: #e0520b;
+      --bg-light: #f8f9fa;
+      --text-light: #212529;
+      --card-light: #ffffff;
+      --border-light: #e0e0e0;
+      --shadow-light: rgba(0, 0, 0, 0.08);
+
+      --bg-dark: #111827;
+      --text-dark: #ffffff;
+      --card-dark: #1f2937;
+      --border-dark: #374151;
+      --shadow-dark: rgba(0, 0, 0, 0.4);
     }
     
+    * {
+      font-family: 'Tajawal', sans-serif;
+      /* تحسين حجم الخط الافتراضي وتنعيم الخط */
+      font-size: 1rem; /* 16px */
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    body {
+      transition: background-color 0.3s ease, color 0.3s ease;
+      background-color: var(--bg-light); /* قيمة افتراضية للوضع الفاتح */
+      color: var(--text-light); /* قيمة افتراضية للوضع الفاتح */
+    }
+
     body.dark { 
-      background-color: #111827; 
-      color: white; 
+      background-color: var(--bg-dark); 
+      color: var(--text-dark); 
     }
     
     body.light { 
-      background-color: #f8f9fa; 
-      color: black; 
+      background-color: var(--bg-light); 
+      color: var(--text-light); 
     }
     
-    select, option {
+    /* تحسينات عامة على عناصر الإدخال */
+    select, input:not([type="checkbox"]), textarea {
       appearance: none;
-      padding: 0.5rem;
+      padding: 0.75rem 1rem; /* زيادة حجم البادينج */
+      border-radius: 0.6rem; /* تدوير أكثر */
+      border: 1px solid var(--border-light);
+      background-color: var(--card-light);
+      color: var(--text-light);
+      transition: all 0.2s ease-in-out;
+    }
+    body.dark select, 
+    body.dark input:not([type="checkbox"]), 
+    body.dark textarea {
+      border: 1px solid var(--border-dark);
+      background-color: var(--card-dark);
+      color: var(--text-dark);
     }
     
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(239, 91, 12, 0.3); /* ظل أوسع وأكثر نعومة */
+      border-color: var(--primary-orange);
+    }
+
+    /* أزرار Tailwind المخصصة */
+    .btn-primary {
+      background-color: var(--primary-orange);
+      color: white;
+      transition: background-color 0.2s ease;
+    }
+    .btn-primary:hover {
+      background-color: var(--primary-orange-hover);
+    }
+
+    .btn-secondary {
+      background-color: var(--card-light);
+      color: var(--text-light);
+      border: 1px solid var(--border-light);
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+    .btn-secondary:hover {
+      background-color: var(--border-light);
+    }
+    body.dark .btn-secondary {
+      background-color: var(--card-dark);
+      color: var(--text-dark);
+      border: 1px solid var(--border-dark);
+    }
+    body.dark .btn-secondary:hover {
+      background-color: #2e3b4d; /* درجة أغمق قليلًا من الكارد الداكن */
+      border-color: #4b5a70;
+    }
+
+
+    /* الإشعارات */
     .notification {
-  position: fixed;
-  top: 10%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.9);
-  padding: 20px 30px;
-  border-radius: 12px;
-  background: #eb0b0b;
-  color: white;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  z-index: 1000;
-  opacity: 0;
-  pointer-events: none;
-  max-width: 90%;
-  text-align: center;
-  font-size: 1.1rem;
-  animation: fadeOut 0.4s ease forwards;
-}
+      position: fixed;
+      top: 20px; /* أقرب للزاوية العليا */
+      right: 20px; /* تظهر من اليمين */
+      transform: translateX(100%); /* تبدأ خارج الشاشة */
+      padding: 15px 25px; /* تعديل البادينج */
+      border-radius: 10px; /* تدوير أكثر */
+      background: var(--primary-orange);
+      color: white;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* ظل أنعم */
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      max-width: 300px; /* عرض ثابت */
+      text-align: right; /* محاذاة لليمين */
+      font-size: 1rem;
+      transition: all 0.4s ease-out; /* انتقال شامل وناعم */
+    }
 
-.notification.show {
-  animation: fadeIn 0.4s ease forwards;
-}
-
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -60%) scale(0.95);
-  }
-  100% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-@keyframes fadeOut {
-  0% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(-50%, -40%) scale(0.9);
-  }
-}
-
+    .notification.show {
+      opacity: 1;
+      transform: translateX(0); /* تدخل من اليمين */
+      pointer-events: auto;
+    }
     
     .skeleton {
-      background: linear-gradient(90deg, #2a374a 25%, #3c4758 50%, #2a374a 75%);
+      background: linear-gradient(90deg, var(--border-dark) 25%, #3c4758 50%, var(--border-dark) 75%);
       background-size: 200% 100%;
       animation: skeleton-loading 1.5s infinite;
     }
@@ -89,12 +145,19 @@
     }
     
     .task-card {
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* انتقال أكثر حيوية */
+      border: 1px solid var(--border-light); /* حدود افتراضية */
+    }
+    body.dark .task-card {
+      border: 1px solid var(--border-dark);
     }
     
     .task-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); /* ظل أكبر وأكثر وضوحا عند التمرير */
+    }
+    body.dark .task-card:hover {
+      box-shadow: 0 10px 25px var(--shadow-dark);
     }
     
     .fade-in {
@@ -102,10 +165,11 @@
     }
     
     @keyframes fadeIn { 
-      0% { opacity: 0; }
-      100% { opacity: 1; }
+      0% { opacity: 0; transform: translateY(10px); } /* تبدأ من الأسفل قليلا */
+      100% { opacity: 1; transform: translateY(0); }
     }
     
+    /* الظلال الخاصة بالأولويات */
     .priority-high {
       box-shadow: 0 0 0 2px #e74c3c;
     }
@@ -121,12 +185,23 @@
     /* تصميم الشريط الجانبي */
     .sidebar {
       transition: width 0.3s ease;
+      background-color: var(--card-dark); /* توحيد الخلفية مع بطاقات الوضع الداكن */
     }
     
     .sidebar.collapsed {
-      width: 60px;
+      width: 80px; /* زيادة العرض قليلا لاستيعاب أيقونات أكبر */
     }
-    
+    .sidebar.collapsed .sidebar-text {
+        opacity: 0;
+        width: 0;
+        overflow: hidden;
+        margin-right: 0; /* إزالة الهامش */
+    }
+    .sidebar-text {
+        transition: opacity 0.3s ease, width 0.3s ease, margin-right 0.3s ease;
+        white-space: nowrap; /* منع التفاف النص */
+    }
+
     .tooltip {
       position: relative;
     }
@@ -134,26 +209,27 @@
     .tooltip:hover:after {
       content: attr(data-tooltip);
       position: absolute;
-      right: 100%;
+      right: 110%; /* ابعد قليلا عن العنصر */
       top: 50%;
       transform: translateY(-50%);
-      background: rgba(0,0,0,0.8);
+      background: rgba(0,0,0,0.85); /* ظل أغمق للتولتييب */
       color: white;
-      padding: 4px 8px;
-      border-radius: 4px;
+      padding: 6px 10px; /* بادينج أكبر */
+      border-radius: 6px; /* تدوير أكثر */
       white-space: nowrap;
-      z-index: 10;
+      z-index: 100; /* تأكد أنه يظهر فوق كل شيء */
       margin-right: 10px;
+      font-size: 0.85rem; /* حجم خط أصغر قليلا */
     }
     
-    /* انيميشن جديد للبطاقات */
+    /* انيميشن جديد للبطاقات (عند الإضافة مثلاً) */
     .task-card.new {
-      animation: pulse 2s infinite;
+      animation: pulse 2s ease-out infinite; /* انيميشن أنعم */
     }
     
     @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(239, 91, 12, 0.7); }
-      70% { box-shadow: 0 0 0 10px rgba(239, 91, 12, 0); }
+      0% { box-shadow: 0 0 0 0 rgba(239, 91, 12, 0.4); } /* بداية الانيميشن أغمق قليلا */
+      70% { box-shadow: 0 0 0 15px rgba(239, 91, 12, 0); } /* انتشار أكبر */
       100% { box-shadow: 0 0 0 0 rgba(239, 91, 12, 0); }
     }
     
@@ -161,23 +237,41 @@
     .tab {
       position: relative;
       overflow: hidden;
+      color: var(--text-dark); /* اللون الافتراضي للأيقونات والنصوص في الوضع الداكن */
+      justify-content: flex-end; /* المحاذاة لليمين */
     }
-    
+    .tab span { /* للنص داخل التاب */
+      margin-right: 0.75rem; /* مسافة بين الأيقونة والنص */
+    }
+    .tab i { /* للأيقونات داخل التاب */
+      font-size: 1.6rem; /* أيقونات أكبر قليلا */
+    }
+
     .tab::after {
       content: '';
       position: absolute;
       bottom: 0;
       left: 0;
       width: 0;
-      height: 2px;
-      background: #ef5b0c;
+      height: 3px; /* شريط سميك */
+      background: var(--primary-orange);
       transition: width 0.3s ease;
     }
     
     .tab.active::after {
       width: 100%;
     }
-    
+    .tab.active {
+      color: var(--primary-orange); /* لون الأيقونة والنص نشط */
+    }
+    body.light .tab.active {
+      color: var(--primary-orange);
+    }
+    body.light .tab {
+      color: var(--text-light);
+    }
+
+
     /* تصميم المودال */
     .modal-backdrop {
       position: fixed;
@@ -185,14 +279,14 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.6); /* خلفية أغمق للمودال */
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 50;
       opacity: 0;
       visibility: hidden;
-      transition: opacity 0.3s, visibility 0.3s;
+      transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
     }
     
     .modal-backdrop.show {
@@ -201,57 +295,68 @@
     }
     
     .modal-content {
-      transform: translateY(20px);
-      transition: transform 0.3s;
+      transform: translateY(20px) scale(0.95); /* تبدأ أصغر قليلا ومن الأسفل */
+      transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      background-color: var(--card-light);
+      box-shadow: 0 15px 30px var(--shadow-light); /* ظل أكبر للمودال */
+    }
+    body.dark .modal-content {
+      background-color: var(--card-dark);
+      box-shadow: 0 15px 30px var(--shadow-dark);
     }
     
     .modal-backdrop.show .modal-content {
-      transform: translateY(0);
+      transform: translateY(0) scale(1);
     }
     
     /* تصميم زر العائم */
     .floating-button {
       position: fixed;
       bottom: 30px;
-      right: 30px;
+      left: 30px; /* تغيير مكانه ليناسب اللغة العربية */
       height: 60px;
       width: 60px;
-      border-radius: 30px;
-      background: #ef5b0c;
+      border-radius: 50%; /* دائري بالكامل */
+      background: var(--primary-orange);
       color: white;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
       z-index: 40;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
     
     .floating-button:hover {
-      transform: scale(1.1);
-      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
-    }
-    
-    /* تحسين تصميم النماذج */
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(239, 91, 12, 0.5);
+      transform: scale(1.05) translateY(-3px); /* يكبر ويرتفع قليلا */
+      box-shadow: 0 8px 18px rgba(0,0,0,0.4);
+      background: var(--primary-orange-hover);
     }
     
     /* سكرول بار مخصص */
     ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
+      width: 10px; /* عرض أكبر */
+      height: 10px;
     }
     
     ::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.1);
+      background: var(--card-light); /* يتناسق مع الخلفية */
       border-radius: 10px;
+    }
+    body.dark ::-webkit-scrollbar-track {
+      background: var(--card-dark);
     }
     
     ::-webkit-scrollbar-thumb {
-      background: #ef5b0c;
+      background: var(--primary-orange);
       border-radius: 10px;
+      border: 2px solid var(--card-light); /* حدود حول شريط التمرير */
+    }
+    body.dark ::-webkit-scrollbar-thumb {
+      border: 2px solid var(--card-dark);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-orange-hover);
     }
     
     /* تحسين قسم البحث */
@@ -261,16 +366,22 @@
     
     .search-results {
       position: absolute;
-      top: 100%;
+      top: calc(100% + 5px); /* مسافة قليلة من حقل البحث */
       left: 0;
       right: 0;
-      max-height: 300px;
+      max-height: 250px; /* ارتفاع أقل */
       overflow-y: auto;
-      background: var(--bg-color);
+      background: var(--card-light);
       border-radius: 8px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      box-shadow: 0 10px 25px var(--shadow-light);
       z-index: 20;
       display: none;
+      border: 1px solid var(--border-light);
+    }
+    body.dark .search-results {
+      background: var(--card-dark);
+      box-shadow: 0 10px 25px var(--shadow-dark);
+      border: 1px solid var(--border-dark);
     }
     
     .search-container:focus-within .search-results {
@@ -280,126 +391,206 @@
     /* تصميم التعليقات */
     .comment {
       position: relative;
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 10px;
+      padding: 15px; /* بادينج أكبر */
+      border-radius: 10px; /* تدوير أكثر */
+      margin-bottom: 15px; /* مسافة أكبر بين التعليقات */
+      background-color: var(--bg-light); /* خلفية خفيفة للتعليق */
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* ظل خفيف */
+    }
+    body.dark .comment {
+      background-color: var(--card-dark); /* خلفية داكنة للتعليق */
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     }
 
     .comment:before {
       content: '';
       position: absolute;
       top: 15px;
-      right: -8px;
+      left: -8px; /* تغيير الاتجاه ليناسب RTL */
       width: 0;
       height: 0;
       border-top: 8px solid transparent;
       border-bottom: 8px solid transparent;
-      border-left: 8px solid currentColor;
+      border-right: 8px solid currentColor; /* تغيير الاتجاه */
     }
 
-    /* تصميم علامات التمييز */
+    /* تصميم علامات التمييز (التاغات) */
     .tag {
       display: inline-block;
-      padding: 3px 8px;
-      border-radius: 12px;
-      font-size: 12px;
-      margin-right: 4px;
+      padding: 5px 12px; /* بادينج أكبر */
+      border-radius: 18px; /* تدوير أكثر للحواف */
+      font-size: 0.8rem; /* حجم خط أصغر قليلا */
+      margin-left: 6px; /* مسافة من اليسار ليناسب RTL */
       white-space: nowrap;
+      font-weight: 500; /* خط أثقل قليلا */
+      border: 1px solid transparent; /* حدود شفافة */
+      transition: all 0.2s ease;
     }
+    .tag:hover {
+      opacity: 0.8;
+    }
+    .tag-checkbox {
+      margin-left: 0.5rem; /* مسافة بين التشيك بوكس والنص */
+    }
+    .tag-checkbox:checked + span {
+      font-weight: bold;
+    }
+
 
     /* تصميم شريط التقدم */
     .progress-bar {
-      height: 8px;
-      border-radius: 4px;
-      background: rgba(255, 255, 255, 0.1);
+      height: 10px; /* ارتفاع أكبر */
+      border-radius: 5px; /* تدوير أكثر */
+      background: rgba(255, 255, 255, 0.15); /* خلفية شفافة */
       overflow: hidden;
+    }
+    body.light .progress-bar {
+      background: rgba(0, 0, 0, 0.08);
     }
 
     .progress-bar-fill {
       height: 100%;
-      border-radius: 4px;
-      background: #ef5b0c;
+      border-radius: 5px;
+      background: var(--primary-orange);
       transition: width 0.5s ease;
     }
 
     /* انيميشن إضافي للعناصر */
     .slide-in {
-      animation: slideIn 0.3s ease-out;
+      animation: slideIn 0.4s ease-out forwards; /* انيميشن أطول قليلا */
     }
 
     @keyframes slideIn {
-      from { transform: translateX(30px); opacity: 0; }
+      from { transform: translateX(50px); opacity: 0; } /* تبدأ من مسافة أكبر */
       to { transform: translateX(0); opacity: 1; }
     }
 
     .bounce {
-      animation: bounce 0.5s;
+      animation: bounce 0.6s ease-in-out; /* انيميشن أطول وأكثر نعومة */
     }
 
     @keyframes bounce {
       0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
+      50% { transform: translateY(-15px); } /* ارتداد أعلى */
+    }
+
+    /* تحسينات عامة للمحتوى الرئيسي */
+    #app {
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* تحسينات لبطاقات الإحصاءات في لوحة التحكم */
+    .stat-card {
+        background-color: var(--card-light);
+        box-shadow: 0 4px 12px var(--shadow-light);
+        border-radius: 1.25rem; /* تدوير أكبر */
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px var(--shadow-light);
+    }
+    body.dark .stat-card {
+        background-color: var(--card-dark);
+        box-shadow: 0 4px 12px var(--shadow-dark);
+    }
+
+    /* تحسين الجداول */
+    table {
+        border-collapse: separate; /* لجعل تدوير الزوايا يعمل */
+        border-spacing: 0 8px; /* مسافة بين الصفوف */
+    }
+    th, td {
+        padding: 12px 16px; /* بادينج أكبر */
+        text-align: right; /* محاذاة لليمين افتراضيا */
+    }
+    thead th {
+        background-color: rgba(0, 0, 0, 0.05); /* خلفية خفيفة للرأس */
+        font-weight: 600;
+        border-bottom: 2px solid var(--border-light);
+    }
+    body.dark thead th {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-bottom: 2px solid var(--border-dark);
+    }
+    tbody tr {
+        background-color: var(--card-light);
+        border-radius: 8px;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.03); /* ظل خفيف جدا لكل صف */
+    }
+    body.dark tbody tr {
+        background-color: var(--card-dark);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    tbody tr:hover {
+        background-color: rgba(239, 91, 12, 0.05); /* تأثير هوفر خفيف بلون البرتقالي */
+        transform: scale(1.01);
+    }
+    body.dark tbody tr:hover {
+        background-color: rgba(239, 91, 12, 0.1);
+    }
+
+    /* تحسينات لـ Chart.js */
+    .chartjs-render-monitor {
+        background-color: transparent !important; /* لضمان شفافية الخلفية */
     }
   </style>
 </head>
 <body class="dark min-h-screen">
   <div class="flex">
-    <!-- الشريط الجانبي -->
-    <div class="sidebar min-h-screen p-4 bg-gray-900 text-white flex flex-col items-center" id="sidebar">
-      <button class="mb-8 text-2xl text-gray-400 hover:text-white" id="toggle-sidebar">
+    <div class="sidebar min-h-screen p-4 text-white flex flex-col items-center" id="sidebar">
+      <button class="mb-8 text-3xl text-gray-400 hover:text-white transition-colors" id="toggle-sidebar">
         <em class="ph ph-list"></em>
       </button>
       
-      <div class="space-y-6 w-full">
-        <button class="tooltip tab flex items-center justify-center w-full p-3 rounded-lg hover:bg-gray-800 transition-all" data-tooltip="لوحة التحكم" data-section="dashboard">
+      <div class="space-y-4 w-full">
+        <button class="tooltip tab flex items-center w-full p-3 rounded-xl hover:bg-gray-700 transition-all" data-tooltip="لوحة التحكم" data-section="dashboard">
           <em class="ph ph-chart-pie text-2xl"></em>
           <span class="sidebar-text mr-3">لوحة التحكم</span>
         </button>
         
-        <button class="tooltip tab active flex items-center justify-center w-full p-3 rounded-lg bg-gray-800 text-white transition-all" data-tooltip="الطلبات" data-section="tasks">
+        <button class="tooltip tab active flex items-center w-full p-3 rounded-xl bg-gray-800 text-white transition-all" data-tooltip="الطلبات" data-section="tasks">
           <em class="ph ph-clipboard-text text-2xl"></em>
           <span class="sidebar-text mr-3">الطلبات</span>
         </button>
         
-        <button class="tooltip tab flex items-center justify-center w-full p-3 rounded-lg hover:bg-gray-800 transition-all" data-tooltip="التقارير" data-section="reports">
+        <button class="tooltip tab flex items-center w-full p-3 rounded-xl hover:bg-gray-700 transition-all" data-tooltip="التقارير" data-section="reports">
           <em class="ph ph-chart-line text-2xl"></em>
           <span class="sidebar-text mr-3">التقارير</span>
         </button>
         
-        <button class="tooltip tab flex items-center justify-center w-full p-3 rounded-lg hover:bg-gray-800 transition-all" data-tooltip="الإعدادات" data-section="settings">
+        <button class="tooltip tab flex items-center w-full p-3 rounded-xl hover:bg-gray-700 transition-all" data-tooltip="الإعدادات" data-section="settings">
           <em class="ph ph-gear text-2xl"></em>
           <span class="sidebar-text mr-3">الإعدادات</span>
         </button>
       </div>
       
-      <div class="mt-auto">
-        <button class="tooltip flex items-center justify-center w-full p-3 rounded-lg hover:bg-gray-800 transition-all" data-tooltip="المستخدم">
+      <div class="mt-auto w-full">
+        <button class="tooltip flex items-center w-full p-3 rounded-xl hover:bg-gray-700 transition-all" data-tooltip="المستخدم">
           <em class="ph ph-user-circle text-2xl"></em>
           <span class="sidebar-text mr-3">المستخدم</span>
         </button>
       </div>
     </div>
     
-    <!-- المحتوى الرئيسي -->
     <div class="flex-1 overflow-x-hidden">
       <div class="max-w-7xl mx-auto px-4 py-8" id="app"></div>
     </div>
   </div>
   
-  <!-- عنصر الإشعارات -->
   <div class="notification" id="notification"></div>
   
-  <!-- زر عائم لإضافة طلب -->
   <button class="floating-button" id="add-task-btn">
     <em class="ph ph-plus text-2xl"></em>
   </button>
   
-  <!-- نموذج الطلب (مودال) -->
   <div class="modal-backdrop" id="task-modal">
-    <div class="modal-content max-w-3xl w-full bg-gray-800 rounded-2xl shadow-lg p-6">
+    <div class="modal-content max-w-3xl w-full rounded-2xl shadow-lg p-6">
       <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold text-[#ef5b0c]" id="modal-title">إضافة طلب جديد</h2>
-        <button class="text-gray-400 hover:text-white text-2xl" id="close-modal">
+        <h2 class="text-xl font-bold text-[var(--primary-orange)]" id="modal-title">إضافة طلب جديد</h2>
+        <button class="text-gray-400 hover:text-white text-2xl transition-colors" id="close-modal">
           <em class="ph ph-x"></em>
         </button>
       </div>
@@ -408,12 +599,11 @@
     </div>
   </div>
   
-  <!-- مودال عرض التفاصيل -->
   <div class="modal-backdrop" id="task-details-modal">
-    <div class="modal-content max-w-4xl w-full bg-gray-800 rounded-2xl shadow-lg p-6 max-h-[90vh] overflow-y-auto">
+    <div class="modal-content max-w-4xl w-full rounded-2xl shadow-lg p-6 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold text-[#ef5b0c]">تفاصيل الطلب</h2>
-        <button class="text-gray-400 hover:text-white text-2xl" id="close-details-modal">
+        <h2 class="text-xl font-bold text-[var(--primary-orange)]">تفاصيل الطلب</h2>
+        <button class="text-gray-400 hover:text-white text-2xl transition-colors" id="close-details-modal">
           <em class="ph ph-x"></em>
         </button>
       </div>
@@ -422,13 +612,12 @@
     </div>
   </div>
   
-  <!-- مودال تأكيد الحذف -->
   <div class="modal-backdrop" id="confirm-modal">
-    <div class="modal-content max-w-md w-full bg-gray-800 rounded-2xl shadow-lg p-6">
+    <div class="modal-content max-w-md w-full rounded-2xl shadow-lg p-6">
       <h2 class="text-xl font-bold mb-4">تأكيد الحذف</h2>
       <p class="mb-6">هل أنت متأكد من رغبتك في حذف هذا الطلب؟ لا يمكن التراجع عن هذه العملية.</p>
       <div class="flex justify-end gap-3">
-        <button id="cancel-delete" class="px-4 py-2 rounded-lg bg-gray-600 text-white hover:bg-gray-700 transition">إلغاء</button>
+        <button id="cancel-delete" class="px-4 py-2 rounded-lg btn-secondary transition">إلغاء</button>
         <button id="confirm-delete" class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition">حذف</button>
       </div>
     </div>
@@ -449,10 +638,10 @@
     let activityLog = [];
     let deleteTaskId = null;
     let teamMembers = [
-      { id: 1, name: "أحمد الأحمد", role: "مدير مشاريع", avatar: "A" },
-      { id: 2, name: "نوف السعيد", role: "مصمم", avatar: "N" },
-      { id: 3, name: "محمد العبدالله", role: "مطور", avatar: "M" },
-      { id: 4, name: "سارة الخالد", role: "مدير حساب", avatar: "S" }
+      { id: 1, name: "أحمد الأحمد", role: "مدير مشاريع", avatar: "أ" },
+      { id: 2, name: "نوف السعيد", role: "مصمم", avatar: "ن" },
+      { id: 3, name: "محمد العبدالله", role: "مطور", avatar: "م" },
+      { id: 4, name: "سارة الخالد", role: "مدير حساب", avatar: "س" }
     ];
     
     // تعريف الأولويات
@@ -544,15 +733,19 @@
     
     // إظهار إشعارات
     function showNotification(message, type = 'success') {
-  const notification = document.getElementById('notification');
-  notification.textContent = message;
-  notification.className = `notification ${type === 'error' ? 'bg-red-600' : 'bg-[#ef5b0c]'} show`;
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.className = `notification ${type === 'error' ? 'bg-red-600' : 'bg-[var(--primary-orange)]'} show`;
 
-  // إزالة الإشعار بعد 3 ثواني بأنيميشن خروج
-  setTimeout(() => {
-    notification.classList.remove('show');
-  }, 3000);
-}
+      // إزالة الإشعار بعد 3 ثواني
+      setTimeout(() => {
+        notification.classList.remove('show');
+        // إزالة الرسالة بعد إخفاء الأنيميشن بالكامل
+        setTimeout(() => {
+            notification.textContent = '';
+        }, 400); // نفس مدة transition في CSS
+      }, 3000);
+    }
     
     // إضافة نشاط جديد في السجل
     function logActivity(action, taskId, details = '') {
@@ -583,12 +776,16 @@
       document.querySelectorAll('.tab').forEach(tab => {
         const section = tab.getAttribute('data-section');
         if (section === activeSection) {
-          tab.classList.add('active', 'bg-gray-800');
+          tab.classList.add('active', 'bg-gray-800'); // Note: bg-gray-800 will be overridden by the .active css for color
         } else {
           tab.classList.remove('active', 'bg-gray-800');
         }
       });
       
+      // تطبيق الوضع الداكن/الفاتح على الـ body
+      document.body.classList.remove('dark', 'light');
+      document.body.classList.add(darkMode ? 'dark' : 'light');
+
       // إنشاء المحتوى بناءً على القسم النشط
       switch (activeSection) {
         case 'dashboard':
@@ -669,73 +866,67 @@
         return tasks.filter(t => t.completedAt && t.completedAt.startsWith(day)).length;
       });
       
-      const bg = darkMode ? 'bg-gray-800' : 'bg-white';
-      const textColor = darkMode ? 'text-white' : 'text-black';
-      
       const app = document.getElementById("app");
       app.innerHTML = `
         <div class="flex justify-between items-center mb-6">
-          <h1 class="text-2xl font-bold">لوحة التحكم</h1>
+          <h1 class="text-3xl font-bold">لوحة التحكم</h1>
           <div class="flex gap-4">
-            <button onclick="toggleMode()" class="px-4 py-2 rounded-full bg-[#ef5b0c] text-white hover:bg-orange-600 transition-all flex items-center gap-2">
+            <button onclick="toggleMode()" class="px-5 py-2 rounded-full btn-primary flex items-center gap-2">
               <i class="ph ${darkMode ? 'ph-sun' : 'ph-moon'}"></i>
               ${darkMode ? "الوضع النهاري" : "الوضع الليلي"}
             </button>
           </div>
         </div>
 
-        <!-- بطاقات الإحصاءات -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div class="p-4 rounded-xl ${bg} shadow-md flex items-center justify-between">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="stat-card flex items-center justify-between">
             <div>
-              <h3 class="text-sm text-gray-500">إجمالي الطلبات</h3>
-              <p class="text-2xl font-bold">${totalTasks}</p>
+              <h3 class="text-base text-gray-500 mb-1">إجمالي الطلبات</h3>
+              <p class="text-3xl font-extrabold">${totalTasks}</p>
             </div>
-            <div class="text-3xl text-blue-500">
+            <div class="text-4xl text-blue-500">
               <i class="ph ph-clipboard-text"></i>
             </div>
           </div>
-          <div class="p-4 rounded-xl ${bg} shadow-md flex items-center justify-between">
+          <div class="stat-card flex items-center justify-between">
             <div>
-              <h3 class="text-sm text-gray-500">الطلبات المنجزة</h3>
-              <p class="text-2xl font-bold">${completedTasks}</p>
+              <h3 class="text-base text-gray-500 mb-1">الطلبات المنجزة</h3>
+              <p class="text-3xl font-extrabold">${completedTasks}</p>
             </div>
-            <div class="text-3xl text-green-500">
+            <div class="text-4xl text-green-500">
               <i class="ph ph-check-circle"></i>
             </div>
           </div>
-          <div class="p-4 rounded-xl ${bg} shadow-md flex items-center justify-between">
+          <div class="stat-card flex items-center justify-between">
             <div>
-              <h3 class="text-sm text-gray-500">الطلبات المتأخرة</h3>
-              <p class="text-2xl font-bold">${overdueTasks.length}</p>
+              <h3 class="text-base text-gray-500 mb-1">الطلبات المتأخرة</h3>
+              <p class="text-3xl font-extrabold">${overdueTasks.length}</p>
             </div>
-            <div class="text-3xl text-red-500">
+            <div class="text-4xl text-red-500">
               <i class="ph ph-clock-countdown"></i>
             </div>
           </div>
-          <div class="p-4 rounded-xl ${bg} shadow-md flex items-center justify-between">
+          <div class="stat-card flex items-center justify-between">
             <div>
-              <h3 class="text-sm text-gray-500">نسبة الإنجاز</h3>
-              <p class="text-2xl font-bold">${completionRate}%</p>
+              <h3 class="text-base text-gray-500 mb-1">نسبة الإنجاز</h3>
+              <p class="text-3xl font-extrabold">${completionRate}%</p>
             </div>
-            <div class="text-3xl text-purple-500">
+            <div class="text-4xl text-purple-500">
               <i class="ph ph-chart-pie"></i>
             </div>
           </div>
         </div>
         
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <!-- مخطط الأداء -->
-          <div class="lg:col-span-2 p-6 rounded-xl ${bg} shadow-md">
-            <h2 class="text-lg font-bold mb-4">أداء النظام خلال الأسبوع</h2>
+          <div class="lg:col-span-2 p-6 rounded-2xl stat-card">
+            <h2 class="text-xl font-bold mb-4">أداء النظام خلال الأسبوع</h2>
             <div class="h-60">
               <canvas id="performanceChart"></canvas>
             </div>
           </div>
           
-          <!-- كفاءة الأقسام -->
-          <div class="p-6 rounded-xl ${bg} shadow-md">
-            <h2 class="text-lg font-bold mb-4">كفاءة الأقسام</h2>
+          <div class="p-6 rounded-2xl stat-card">
+            <h2 class="text-xl font-bold mb-4">كفاءة الأقسام</h2>
             <div class="h-60">
               <canvas id="departmentsChart"></canvas>
             </div>
@@ -743,73 +934,105 @@
         </div>
         
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <!-- إحصائيات إضافية -->
-          <div class="p-6 rounded-xl ${bg} shadow-md">
-            <h2 class="text-lg font-bold mb-4">إحصائيات أخرى</h2>
+          <div class="p-6 rounded-2xl stat-card">
+            <h2 class="text-xl font-bold mb-4">إحصائيات أخرى</h2>
             <div class="space-y-4">
-              <div class="flex justify-between items-center">
+              <div class="flex justify-between items-center text-lg">
                 <span class="text-gray-500">متوسط وقت الإنجاز</span>
                 <span class="font-bold">${avgCompletionTime} يوم</span>
               </div>
-              <div class="flex justify-between items-center">
+              <div class="flex justify-between items-center text-lg">
                 <span class="text-gray-500">عدد الطلبات قيد التنفيذ</span>
                 <span class="font-bold">${inProgressTasks}</span>
               </div>
-              <div class="flex justify-between items-center">
+              <div class="flex justify-between items-center text-lg">
                 <span class="text-gray-500">عدد الطلبات المنتظرة</span>
                 <span class="font-bold">${pendingTasks}</span>
               </div>
-              <div class="flex justify-between items-center">
+              <div class="flex justify-between items-center text-lg">
                 <span class="text-gray-500">نسبة الطلبات المتأخرة</span>
                 <span class="font-bold">${totalTasks > 0 ? Math.round((overdueTasks.length / totalTasks) * 100) : 0}%</span>
               </div>
             </div>
           </div>
           
-          <!-- توزيع الحالات -->
-          <div class="p-6 rounded-xl ${bg} shadow-md">
-            <h2 class="text-lg font-bold mb-4">توزيع الحالات</h2>
+          <div class="p-6 rounded-2xl stat-card">
+            <h2 class="text-xl font-bold mb-4">توزيع الحالات</h2>
             <div class="h-60">
               <canvas id="statusChart"></canvas>
             </div>
           </div>
           
-          <!-- آخر الأنشطة -->
-          <div class="p-6 rounded-xl ${bg} shadow-md">
-            <h2 class="text-lg font-bold mb-4">آخر الأنشطة</h2>
+          <div class="p-6 rounded-2xl stat-card">
+            <h2 class="text-xl font-bold mb-4">آخر الأنشطة</h2>
             <div class="space-y-3 max-h-60 overflow-y-auto">
               ${activityLog.slice(0, 5).map(log => `
-                <div class="border-r-2 pr-3" style="border-color: ${statuses[log.action]?.color || '#999'}">
+                <div class="border-r-2 pr-3 border-[var(--primary-orange)]">
                   <p class="text-sm opacity-80">${new Date(log.timestamp).toLocaleString('en-US')}</p>
-                  <p class="${textColor}">${log.taskTitle}: ${log.action}</p>
+                  <p class="text-base">${log.taskTitle}: <span class="font-semibold">${log.action}</span></p>
                 </div>
-              `).join('') || '<div class="text-gray-500 text-center">لا توجد أنشطة حديثة</div>'}
+              `).join('') || '<div class="text-gray-500 text-center py-6">لا توجد أنشطة حديثة</div>'}
             </div>
           </div>
         </div>
         
-        <!-- الطلبات الحديثة -->
-        <div class="p-6 rounded-xl ${bg} shadow-md mb-8">
-          <h2 class="text-lg font-bold mb-4">أحدث الطلبات</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="p-6 rounded-2xl stat-card mb-8">
+          <h2 class="text-xl font-bold mb-4">أحدث الطلبات</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             ${tasks.slice(0, 3).map(task => `
-              <div class="p-4 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-100'} flex flex-col cursor-pointer task-card" onclick="showTaskDetails(${task.id})">
-                <div class="flex justify-between items-center mb-2">
-                  <span class="px-2 py-1 rounded-full text-xs" style="background: ${departments[task.department]?.color || '#ccc'}">
-                    <i class="ph ${departments[task.department]?.icon || 'ph-folder'}"></i> ${task.department}
+              <div class="p-5 rounded-2xl task-card ${darkMode ? 'bg-gray-700' : 'bg-gray-100'} flex flex-col cursor-pointer" onclick="showTaskDetails(${task.id})">
+                <div class="absolute top-0 right-0 left-0 h-2 rounded-t-xl" style="background-color: ${priorities[task.priority]?.color || '#999'};"></div>
+                <div class="flex justify-between items-start mb-3 mt-2">
+                  <span class="px-3 py-1 text-xs font-semibold rounded-full flex items-center gap-1" 
+                        style="background:${hexToRgba(departments[task.department]?.color || '#ccc', 0.2)}; color:${departments[task.department]?.color || '#ccc'};">
+                    <i class="ph ${departments[task.department]?.icon || 'ph-folder'} text-sm"></i>
+                    ${task.department}
                   </span>
-                  <span class="px-2 py-1 rounded-full text-xs" style="color: ${priorities[task.priority]?.color || '#ccc'}">
-                    <i class="ph ${priorities[task.priority]?.icon || 'ph-circle'}"></i> ${task.priority}
+                  <span class="px-2 py-1 rounded-full text-xs flex items-center gap-1 font-medium" 
+                        style="background:${hexToRgba(statuses[task.status]?.color || '#999', 0.15)}; color:${statuses[task.status]?.color || '#999'}">
+                    <i class="ph ${statuses[task.status]?.icon} text-sm"></i>
+                    ${task.status}
                   </span>
                 </div>
-                <h3 class="font-bold mb-1">${task.title}</h3>
-                <p class="text-sm opacity-80 mb-2">بواسطة: ${task.requester}</p>
-                <div class="flex justify-between mt-auto text-xs">
-                  <span>${task.status}</span>
-                  <span>${task.deadline ? new Date(task.deadline).toLocaleDateString('en-US') : 'غير محدد'}</span>
+                <h3 class="text-xl font-bold mb-2">${task.title}</h3>
+                <p class="text-sm text-gray-500 mb-3">بواسطة: ${task.requester}</p>
+                
+                <div class="space-y-2 text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}">
+                  ${task.size ? `<p><i class="ph ph-rulers text-lg ml-2"></i> المقاس: ${task.size}</p>` : ''}
+                  ${task.type ? `<p><i class="ph ph-tag text-lg ml-2"></i> النوع: ${task.type}</p>` : ''}
+                  <p><i class="ph ph-calendar-blank text-lg ml-2"></i> التسليم: 
+                    <span class="${new Date(task.deadline) < new Date() && task.status !== "منجز" ? 'text-red-500 font-bold' : ''}">${task.deadline ? new Date(task.deadline).toLocaleDateString('en-US') : '--'} ${new Date(task.deadline) < new Date() && task.status !== "منجز" ? '<i class="ph ph-warning text-red-500 ml-1"></i>' : ''}</span>
+                  </p>
+                  ${task.link ? `<p><i class="ph ph-link text-lg ml-2"></i> <a href="${task.link}" target="_blank" class="text-blue-400 underline hover:text-blue-600 cursor-pointer" onclick="event.stopPropagation()">رابط</a></p>` : ''}
+                </div>
+                ${task.tags && task.tags.length > 0 ? `
+                  <div class="flex flex-wrap gap-1 mt-3">
+                    ${task.tags.map(tag => {
+                      const tagInfo = tagsOptions.find(t => t.id === tag) || { id: tag, color: "#999" };
+                      return `<span class="tag text-xs" style="background-color: ${hexToRgba(tagInfo.color, 0.15)}; color: ${tagInfo.color};">${tag}</span>`;
+                    }).join('')}
+                  </div>
+                ` : ''}
+                ${task.assignedTo ? `
+                  <div class="flex items-center mt-3 text-sm text-gray-500">
+                    <i class="ph ph-user-circle text-lg ml-2"></i>
+                    <span>المسؤول:</span>
+                    <span class="font-semibold mr-1">${teamMembers.find(t => t.id === task.assignedTo)?.name || 'غير معروف'}</span>
+                  </div>
+                ` : ''}
+                <div class="flex justify-between items-center mt-4 pt-3 border-t border-dashed border-gray-700/30">
+                  <span class="text-xs text-gray-500">${new Date(task.createdAt).toLocaleDateString('en-US')}</span>
+                  <div class="flex gap-2">
+                    <button onclick="editTask(${task.id}); event.stopPropagation();" class="text-blue-500 text-xl hover:text-blue-600 transition">
+                      <i class="ph ph-pencil-simple"></i>
+                    </button>
+                    <button onclick="confirmDeleteTask(${task.id}); event.stopPropagation();" class="text-red-500 text-xl hover:text-red-600 transition">
+                      <i class="ph ph-trash-simple"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
-            `).join('') || '<div class="text-gray-500 text-center col-span-3">لا توجد طلبات</div>'}
+            `).join('') || '<div class="text-gray-500 text-center col-span-3 py-6">لا توجد طلبات</div>'}
           </div>
         </div>
       `;
@@ -820,6 +1043,533 @@
         createDepartmentsChart(departmentCounts);
         createStatusChart(statusCounts);
       }, 100);
+    }
+    
+    // دالة إنشاء بطاقة الطلب (تم نقلها لضمان ترتيب الدوال)
+    function renderTaskCard(task, isCompleted = false) {
+      const statusColor = statuses[task.status]?.color || "#999";
+      const priorityColor = priorities[task.priority]?.color || "#999";
+      
+      const cardBgColor = darkMode ? 'var(--card-dark)' : 'var(--card-light)';
+      const borderHighlightColor = isCompleted ? statuses["منجز"].color : statusColor;
+
+      const opacity = isCompleted ? "opacity-70" : "";
+      const textColor = darkMode ? "text-gray-300" : "text-gray-700";
+
+      const deadlineDate = task.deadline ? new Date(task.deadline) : null;
+      const today = new Date();
+      const isOverdue = deadlineDate && deadlineDate < today && task.status !== "منجز";
+      const formattedDeadline = task.deadline ? new Date(task.deadline).toLocaleDateString('en-US') : "--";
+      
+      const tagsHTML = task.tags && task.tags.length > 0 ? `
+        <div class="flex flex-wrap gap-1 mt-3">
+          ${task.tags.map(tag => {
+            const tagInfo = tagsOptions.find(t => t.id === tag) || { id: tag, color: "#999" };
+            return `<span class="tag text-xs" style="background-color: ${hexToRgba(tagInfo.color, 0.15)}; color: ${tagInfo.color};">${tag}</span>`;
+          }).join('')}
+        </div>
+      ` : '';
+      
+      const assignedHTML = task.assignedTo ? `
+        <div class="flex items-center mt-3 text-sm text-gray-500">
+          <i class="ph ph-user-circle text-lg ml-2"></i>
+          <span>المسؤول:</span>
+          <span class="font-semibold mr-1">${teamMembers.find(t => t.id === task.assignedTo)?.name || 'غير معروف'}</span>
+        </div>
+      ` : '';
+
+      return `
+        <div class="task-card p-5 rounded-2xl shadow-md transition ${opacity} cursor-pointer relative" 
+             style="background-color: ${cardBgColor}; border: 2px solid ${borderHighlightColor};">
+          
+          <div class="absolute top-0 right-0 left-0 h-2 rounded-t-xl" style="background-color: ${priorityColor};"></div>
+
+          <div class="flex justify-between items-start mb-3 mt-2">
+            <span class="px-3 py-1 text-xs font-semibold rounded-full flex items-center gap-1" 
+                  style="background:${hexToRgba(departments[task.department]?.color || '#ccc', 0.2)}; color:${departments[task.department]?.color || '#ccc'};">
+              <i class="ph ${departments[task.department]?.icon || 'ph-folder'} text-sm"></i>
+              ${task.department || "غير محدد"}
+            </span>
+            <span class="px-2 py-1 rounded-full text-xs flex items-center gap-1 font-medium" 
+                  style="background:${hexToRgba(statuses[task.status]?.color || '#999', 0.15)}; color:${statuses[task.status]?.color || '#999'}">
+              <i class="ph ${statuses[task.status]?.icon} text-sm"></i>
+              ${task.status}
+            </span>
+          </div>
+          <h2 class="text-xl font-bold mb-2">${task.title || "بدون عنوان"}</h2>
+          <p class="text-sm text-gray-500 mb-3">بواسطة: ${task.requester || "--"}</p>
+          
+          <div class="space-y-2 text-sm ${textColor}">
+            ${task.size ? `<p><i class="ph ph-rulers text-lg ml-2"></i> المقاس: ${task.size}</p>` : ''}
+            ${task.type ? `<p><i class="ph ph-tag text-lg ml-2"></i> النوع: ${task.type}</p>` : ''}
+            <p><i class="ph ph-calendar-blank text-lg ml-2"></i> التسليم: 
+              <span class="${isOverdue ? 'text-red-500 font-bold' : ''}">${formattedDeadline} ${isOverdue ? '<i class="ph ph-warning text-red-500 ml-1"></i>' : ''}</span>
+            </p>
+            ${task.link ? `<p><i class="ph ph-link text-lg ml-2"></i> <a href="${task.link}" target="_blank" class="text-blue-400 underline hover:text-blue-600 cursor-pointer" onclick="event.stopPropagation()">رابط</a></p>` : ''}
+          </div>
+          ${tagsHTML}
+          ${assignedHTML}
+          <div class="flex justify-between items-center mt-4 pt-3 border-t border-dashed border-gray-700/30">
+            <span class="text-xs text-gray-500">${new Date(task.createdAt).toLocaleDateString('en-US')}</span>
+            <div class="flex gap-2">
+              <button onclick="editTask(${task.id}); event.stopPropagation();" class="text-blue-500 text-xl hover:text-blue-600 transition">
+                <i class="ph ph-pencil-simple"></i>
+              </button>
+              <button onclick="confirmDeleteTask(${task.id}); event.stopPropagation();" class="text-red-500 text-xl hover:text-red-600 transition">
+                <i class="ph ph-trash-simple"></i>
+              </button>
+            </div>
+          </div>
+        </div>`;
+    }
+    
+    // دالة تطبيق الفلاتر
+    function applyFilters() {
+      filteredTasks = tasks.filter(task => {
+        // تطبيق البحث
+        if (searchTerm && !task.title.toLowerCase().includes(searchTerm.toLowerCase()) && 
+            !task.requester.toLowerCase().includes(searchTerm.toLowerCase()) && 
+            !(task.description && task.description.toLowerCase().includes(searchTerm.toLowerCase()))) {
+          return false;
+        }
+        
+        // تطبيق القسم
+        if (currentFilter.department && task.department !== currentFilter.department) {
+          return false;
+        }
+        
+        // تطبيق الحالة
+        if (currentFilter.status && task.status !== currentFilter.status) {
+          return false;
+        }
+        
+        // تطبيق الأولوية
+        if (currentFilter.priority && task.priority !== currentFilter.priority) {
+          return false;
+        }
+        
+        // تطبيق التاغات
+        if (currentFilter.tags.length > 0) {
+          if (!task.tags || !currentFilter.tags.some(tag => task.tags.includes(tag))) {
+            return false;
+          }
+        }
+        
+        return true;
+      });
+      
+      // تطبيق الترتيب
+      if (currentSort.field) {
+        filteredTasks.sort((a, b) => {
+          let valA = a[currentSort.field] || '';
+          let valB = b[currentSort.field] || '';
+          
+          if (currentSort.field === 'deadline') {
+            valA = valA ? new Date(valA).getTime() : Infinity;
+            valB = valB ? new Date(valB).getTime() : Infinity;
+          } else if (currentSort.field === 'createdAt') {
+            valA = valA ? new Date(valA).getTime() : 0;
+            valB = valB ? new Date(valB).getTime() : 0;
+          }
+          
+          if (valA < valB) return currentSort.ascending ? -1 : 1;
+          if (valA > valB) return currentSort.ascending ? 1 : -1;
+          return 0;
+        });
+      }
+    }
+    
+    // دالة عرض تفاصيل الطلب
+    function showTaskDetails(id) {
+      const task = tasks.find(t => t.id === id);
+      if (!task) return;
+      
+      const taskComments = comments[id] || [];
+      
+      const taskDetailsContent = document.getElementById('task-details-content');
+      
+      // حساب الوقت المنقضي منذ إنشاء الطلب
+      const created = new Date(task.createdAt);
+      const now = new Date();
+      const diffTime = Math.abs(now - created);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      // حساب نسبة الإنجاز (وهمي)
+      let progressPercentage = 0;
+      switch (task.status) {
+        case "منجز": progressPercentage = 100; break;
+        case "جاري العمل": progressPercentage = 60; break;
+        case "انتظار الرد": progressPercentage = 40; break;
+        case "انتظار المحتوى": progressPercentage = 30; break;
+        case "غير منجز": progressPercentage = 10; break;
+        default: progressPercentage = 0;
+      }
+      
+      taskDetailsContent.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="md:col-span-2 space-y-4">
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="px-3 py-1 text-sm rounded-full font-semibold" style="background:${hexToRgba(departments[task.department]?.color || '#ccc', 0.2)}; color:${departments[task.department]?.color || '#ccc'};">
+                <i class="ph ${departments[task.department]?.icon || 'ph-folder'} ml-1"></i> ${task.department || "غير محدد"}
+              </span>
+              <span class="px-3 py-1 text-sm rounded-full font-semibold" style="background:${hexToRgba(statuses[task.status]?.color || '#999', 0.2)}; color:${statuses[task.status]?.color || '#999'}">
+                <i class="ph ${statuses[task.status]?.icon} ml-1"></i> ${task.status}
+              </span>
+              <span class="px-3 py-1 text-sm rounded-full font-semibold" style="background:${hexToRgba(priorities[task.priority]?.color || '#999', 0.2)}; color:${priorities[task.priority]?.color || '#999'}">
+                <i class="ph ${priorities[task.priority]?.icon} ml-1"></i> ${task.priority}
+              </span>
+            </div>
+            
+            <h1 class="text-3xl font-bold mb-4">${task.title}</h1>
+            
+            ${task.description ? `
+              <div class="p-4 rounded-lg bg-gray-700/30 text-base">
+                <h3 class="font-bold mb-2 text-lg">وصف الطلب:</h3>
+                <p>${task.description}</p>
+              </div>
+            ` : ''}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-base">
+              <div class="space-y-2">
+                <p><span class="text-gray-500 ml-2"><i class="ph ph-user-circle text-xl align-middle"></i></span> <span class="font-semibold">${task.requester}</span></p>
+                <p><span class="text-gray-500 ml-2"><i class="ph ph-calendar-check text-xl align-middle"></i></span> تاريخ الإنشاء: <span class="font-semibold">${new Date(task.createdAt).toLocaleString('en-US')}</span></p>
+                <p><span class="text-gray-500 ml-2"><i class="ph ph-timer text-xl align-middle"></i></span> منذ: <span class="font-semibold">${diffDays} يوم</span></p>
+                ${task.type ? `<p><span class="text-gray-500 ml-2"><i class="ph ph-tag text-xl align-middle"></i></span> النوع: <span class="font-semibold">${task.type}</span></p>` : ''}
+              </div>
+              <div class="space-y-2">
+                <p><span class="text-gray-500 ml-2"><i class="ph ph-rulers text-xl align-middle"></i></span> المقاس: <span class="font-semibold">${task.size || "غير محدد"}</span></p>
+                <p><span class="text-gray-500 ml-2"><i class="ph ph-calendar-blank text-xl align-middle"></i></span> الموعد النهائي: <span class="font-semibold">${task.deadline ? new Date(task.deadline).toLocaleDateString('en-US') : "غير محدد"}</span></p>
+                ${task.link ? `<p><span class="text-gray-500 ml-2"><i class="ph ph-link text-xl align-middle"></i></span> الرابط: <a href="${task.link}" target="_blank" class="text-blue-400 underline hover:text-blue-600">فتح الرابط</a></p>` : ''}
+                ${task.completedAt ? `<p><span class="text-gray-500 ml-2"><i class="ph ph-check-circle text-xl align-middle"></i></span> تاريخ الإنجاز: <span class="font-semibold">${new Date(task.completedAt).toLocaleString('en-US')}</span></p>` : ''}
+              </div>
+            </div>
+            
+            <div class="mt-4">
+              <p class="text-gray-500 mb-2 text-base">نسبة الإنجاز:</p>
+              <div class="progress-bar">
+                <div class="progress-bar-fill" style="width: ${progressPercentage}%"></div>
+              </div>
+              <p class="text-sm text-left mt-1 font-semibold">${progressPercentage}%</p>
+            </div>
+            
+            ${task.tags && task.tags.length > 0 ? `
+              <div class="mt-4">
+                <p class="text-gray-500 mb-2 text-base">العلامات:</p>
+                <div class="flex flex-wrap gap-2">
+                  ${task.tags.map(tag => {
+                    const tagInfo = tagsOptions.find(t => t.id === tag) || { id: tag, color: "#999" };
+                    return `<span class="tag" style="background-color: ${hexToRgba(tagInfo.color, 0.2)}; color: ${tagInfo.color};">${tag}</span>`;
+                  }).join('')}
+                </div>
+              </div>
+            ` : ''}
+            
+            <div class="flex flex-wrap gap-4 mt-6">
+              <button onclick="editTask(${task.id})" class="px-5 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition flex items-center gap-2 text-base">
+                <i class="ph ph-pencil-simple text-xl"></i>
+                تعديل الطلب
+              </button>
+              <button onclick="duplicateTask(${task.id})" class="px-5 py-3 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition flex items-center gap-2 text-base">
+                <i class="ph ph-copy text-xl"></i>
+                نسخ الطلب
+              </button>
+              <button onclick="confirmDeleteTask(${task.id})" class="px-5 py-3 rounded-lg bg-red-600 text-white hover:bg-red-700 transition flex items-center gap-2 text-base">
+                <i class="ph ph-trash-simple text-xl"></i>
+                حذف الطلب
+              </button>
+            </div>
+          </div>
+          
+          <div class="space-y-4">
+            <h2 class="text-xl font-bold mb-3">التعليقات والملاحظات</h2>
+            
+            <div class="max-h-96 overflow-y-auto space-y-4 p-2 custom-scrollbar">
+              ${taskComments.length > 0 ? 
+                taskComments.map(comment => `
+                  <div class="comment rounded-xl p-4 border border-transparent" style="border-color: ${darkMode ? 'var(--border-dark)' : 'var(--border-light)'};">
+                    <div class="flex justify-between items-start mb-2">
+                      <div class="flex items-center gap-2">
+                        <div class="w-9 h-9 rounded-full flex items-center justify-center bg-blue-600 text-white font-bold text-sm">
+                          ${comment.user.charAt(0)}
+                        </div>
+                        <span class="font-bold text-base">${comment.user}</span>
+                      </div>
+                      <span class="text-xs text-gray-500">${new Date(comment.timestamp).toLocaleString('ar-SA')}</span>
+                    </div>
+                    <p class="text-base">${comment.text}</p>
+                  </div>
+                `).join('') 
+                : '<p class="text-gray-500 text-center py-6">لا توجد تعليقات</p>'
+              }
+            </div>
+            
+            <div>
+              <textarea id="comment-text" rows="4" class="p-3 rounded-xl w-full resize-none" placeholder="أضف تعليقًا..."></textarea>
+              <button onclick="addComment(${task.id})" class="mt-2 px-5 py-3 btn-primary rounded-xl transition w-full flex items-center justify-center gap-2 text-base">
+                <i class="ph ph-plus text-xl"></i> إضافة تعليق
+              </button>
+            </div>
+            
+            <div class="mt-6">
+              <h3 class="font-bold mb-3 text-lg">تغيير الحالة:</h3>
+              <div class="grid grid-cols-2 gap-2">
+                ${Object.keys(statuses).map(status => `
+                  <button onclick="updateStatus(${task.id}, '${status}')" 
+                      class="px-4 py-2 rounded-lg flex items-center justify-center gap-1 text-sm font-medium transition-all border-2 border-transparent"
+                      style="background: ${hexToRgba(statuses[status].color, 0.1)}; color: ${statuses[status].color}; ${task.status === status ? 'border-color: ' + statuses[status].color + '; background-color: ' + hexToRgba(statuses[status].color, 0.2) : ''}">
+                      <i class="ph ${statuses[status].icon} text-base"></i>
+                      ${status}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+            
+            <div class="mt-4">
+              <h3 class="font-bold mb-3 text-lg">تعيين إلى:</h3>
+              <div class="grid grid-cols-2 gap-2">
+                ${teamMembers.map(member => `
+                  <button onclick="assignTask(${task.id}, ${member.id})" 
+                      class="px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-all border-2 border-transparent" 
+                      style="background: ${darkMode ? 'var(--card-dark)' : 'var(--bg-light)'}; ${task.assignedTo === member.id ? 'border-color: #3498db; background-color: ' + hexToRgba('#3498db', 0.1) : ''}">
+                      <div class="w-8 h-8 rounded-full flex items-center justify-center bg-blue-600 text-white font-bold text-sm">
+                        ${member.avatar}
+                      </div>
+                      ${member.name}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // إظهار المودال
+      document.getElementById('task-details-modal').classList.add('show');
+    }
+    
+    // دالة إضافة تعليق
+    function addComment(taskId) {
+      const commentText = document.getElementById('comment-text').value.trim();
+      if (!commentText) {
+        showNotification('يرجى كتابة التعليق قبل الإضافة', 'error');
+        return;
+      }
+      
+      // إنشاء التعليق
+      const newComment = {
+        id: Date.now(),
+        taskId: taskId,
+        user: 'المستخدم الحالي', // قابل للتغيير مع نظام المستخدمين
+        timestamp: new Date().toISOString(),
+        text: commentText
+      };
+      
+      // إضافة التعليق للمهمة
+      if (!comments[taskId]) {
+        comments[taskId] = [];
+      }
+      comments[taskId].push(newComment);
+      
+      // حفظ التعليقات
+      localStorage.setItem('comments', JSON.stringify(comments));
+      
+      // تسجيل النشاط
+      logActivity('إضافة تعليق', taskId, commentText.substring(0, 30) + (commentText.length > 30 ? '...' : ''));
+      
+      // تحديث واجهة المستخدم
+      showTaskDetails(taskId);
+      showNotification('تم إضافة التعليق بنجاح');
+    }
+    
+    // دالة تعيين المهمة لشخص
+    function assignTask(taskId, userId) {
+      const taskIndex = tasks.findIndex(t => t.id === taskId);
+      if (taskIndex === -1) return;
+      
+      const member = teamMembers.find(m => m.id === userId);
+      if (!member) return;
+      
+      // تحديث المهمة
+      tasks[taskIndex].assignedTo = userId;
+      
+      // حفظ التغييرات
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      
+      // تسجيل النشاط
+      logActivity('تعيين مسؤول', taskId, `تم تعيين المهمة إلى ${member.name}`);
+      
+      // تحديث واجهة المستخدم
+      showTaskDetails(taskId);
+      showNotification(`تم تعيين الطلب إلى ${member.name} بنجاح`);
+    }
+    
+    // دالة تحديث حالة المهمة
+    function updateStatus(id, status) {
+      const taskIndex = tasks.findIndex(t => t.id === id);
+      if (taskIndex === -1) return;
+      
+      const oldStatus = tasks[taskIndex].status;
+      tasks[taskIndex].status = status;
+      
+      // إذا تم تغيير الحالة إلى منجز، نضيف تاريخ الإنجاز
+      if (status === "منجز" && oldStatus !== "منجز") {
+        tasks[taskIndex].completedAt = new Date().toISOString();
+      } else if (status !== "منجز") {
+        // إذا تغيرت من منجز إلى غير منجز، نحذف تاريخ الإنجاز
+        delete tasks[taskIndex].completedAt;
+      }
+      
+      // حفظ التغييرات
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+      
+      // تسجيل النشاط
+      logActivity(status, id, `تم تغيير الحالة من ${oldStatus} إلى ${status}`);
+      
+      // تحديث الواجهة
+      updateUI();
+      
+      // إذا كان في المودال، نحدثه
+      if (document.getElementById('task-details-modal').classList.contains('show')) {
+        showTaskDetails(id);
+      }
+      
+      showNotification(`تم تحديث حالة الطلب إلى: ${status}`);
+    }
+    
+    // دالة إنشاء قسم الطلبات
+    function renderTasks() {
+      // تطبيق الفلاتر
+      applyFilters();
+      
+      const activeTasks = filteredTasks.filter(t => t.status !== "منجز");
+      const doneTasks = filteredTasks.filter(t => t.status === "منجز");
+      
+      const app = document.getElementById("app");
+      app.innerHTML = `
+        <div class="flex justify-between items-center mb-6">
+          <h1 class="text-3xl font-bold">إدارة الطلبات</h1>
+          <div class="flex gap-4">
+            <button onclick="toggleMode()" class="px-5 py-2 rounded-full btn-primary flex items-center gap-2">
+              <i class="ph ${darkMode ? 'ph-sun' : 'ph-moon'}"></i>
+              ${darkMode ? "الوضع النهاري" : "الوضع الليلي"}
+            </button>
+            <button onclick="exportTasks()" class="px-5 py-2 rounded-full btn-secondary flex items-center gap-2">
+              <i class="ph ph-download"></i>
+              تصدير
+            </button>
+          </div>
+        </div>
+
+        <div class="p-6 rounded-2xl stat-card mb-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div class="flex-1 min-w-40">
+              <label for="search" class="text-sm text-gray-500 mb-1 block">بحث</label>
+              <div class="search-container relative">
+                <input id="search" type="text" placeholder="ابحث عن طلب..." class="p-3 rounded-xl w-full" oninput="handleSearch(this.value)" />
+                <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xl"></i>
+                <div class="search-results"></div>
+              </div>
+            </div>
+            <div class="flex-1 min-w-40">
+              <label for="department-filter" class="text-sm text-gray-500 mb-1 block">القسم</label>
+              <select id="department-filter" class="p-3 rounded-xl w-full" onchange="filterByDepartment(this.value)">
+                <option value="">كل الأقسام</option>
+                ${Object.keys(departments).map(dep => `<option>${dep}</option>`).join('')}
+              </select>
+            </div>
+            <div class="flex-1 min-w-40">
+              <label for="status-filter" class="text-sm text-gray-500 mb-1 block">الحالة</label>
+              <select id="status-filter" class="p-3 rounded-xl w-full" onchange="filterByStatus(this.value)">
+                <option value="">كل الحالات</option>
+                ${Object.keys(statuses).map(s => `<option>${s}</option>`).join('')}
+              </select>
+            </div>
+            <div class="flex-1 min-w-40">
+              <label for="priority-filter" class="text-sm text-gray-500 mb-1 block">الأولوية</label>
+              <select id="priority-filter" class="p-3 rounded-xl w-full" onchange="filterByPriority(this.value)">
+                <option value="">كل الأولويات</option>
+                ${Object.keys(priorities).map(p => `<option>${p}</option>`).join('')}
+              </select>
+            </div>
+            <div class="flex-1 min-w-40">
+              <label for="sort-by" class="text-sm text-gray-500 mb-1 block">ترتيب</label>
+              <select id="sort-by" class="p-3 rounded-xl w-full" onchange="sortBy(this.value)">
+                <option value="">بدون ترتيب</option>
+                <option value="deadline">موعد التسليم</option>
+                <option value="title">العنوان</option>
+                <option value="priority">الأولوية</option>
+                <option value="department">القسم</option>
+                <option value="createdAt">تاريخ الإنشاء</option>
+              </select>
+            </div>
+            <div class="flex-1 min-w-40 col-span-full md:col-span-2 lg:col-span-3 xl:col-span-4">
+                <label class="text-sm text-gray-500 mb-1 block">العلامات (التاغات)</label>
+                <div class="flex flex-wrap gap-2 mt-1" id="filter-tags-container">
+                  ${tagsOptions.map(tag => `
+                    <label class="tag cursor-pointer" style="background-color: ${hexToRgba(tag.color, 0.2)}; color: ${tag.color};">
+                      <input type="checkbox" class="filter-tag-checkbox ml-1" value="${tag.id}" onchange="filterByTag(this.value, this.checked)"> ${tag.id}
+                    </label>
+                  `).join('')}
+                </div>
+            </div>
+          </div>
+          <div class="flex justify-end mt-4">
+            <button onclick="resetFilters()" class="px-5 py-2 rounded-lg btn-secondary flex items-center gap-2">
+              <i class="ph ph-x"></i>
+              إعادة تعيين الفلاتر
+            </button>
+          </div>
+        </div>
+
+        <div class="mb-10">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold">الطلبات النشطة</h2>
+            <p class="text-sm text-gray-500">${activeTasks.length} طلب</p>
+          </div>
+          ${activeTasks.length > 0 ? `
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-10">
+              ${activeTasks.map(t => renderTaskCard(t)).join('')}
+            </div>
+          ` : '<div class="p-10 text-center text-gray-500 border border-dashed rounded-lg bg-gray-700/20">لا توجد طلبات نشطة</div>'}
+        </div>
+
+        <div>
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold">الطلبات المنجزة</h2>
+            <p class="text-sm text-gray-500">${doneTasks.length} طلب</p>
+          </div>
+          ${doneTasks.length > 0 ? `
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              ${doneTasks.map(t => renderTaskCard(t, true)).join('')}
+            </div>
+          ` : '<div class="p-10 text-center text-gray-500 border border-dashed rounded-lg bg-gray-700/20">لا توجد طلبات منجزة</div>'}
+        </div>
+      `;
+      
+      // تحديث حالة الفلاتر الحالية في واجهة المستخدم
+      if (currentFilter.department) {
+        document.getElementById('department-filter').value = currentFilter.department;
+      }
+      if (currentFilter.status) {
+        document.getElementById('status-filter').value = currentFilter.status;
+      }
+      if (currentFilter.priority) {
+        document.getElementById('priority-filter').value = currentFilter.priority;
+      }
+      if (currentSort.field) {
+        document.getElementById('sort-by').value = currentSort.field;
+      }
+      if (searchTerm) {
+        document.getElementById('search').value = searchTerm;
+      }
+      // تحديث حالة التاغات
+      if (currentFilter.tags.length > 0) {
+        document.querySelectorAll('.filter-tag-checkbox').forEach(checkbox => {
+          if (currentFilter.tags.includes(checkbox.value)) {
+            checkbox.checked = true;
+          }
+        });
+      }
     }
     
     // دالة إنشاء مخطط الأداء
@@ -966,647 +1716,107 @@
       });
     }
     
-    // دالة إنشاء قسم الطلبات
-    function renderTasks() {
-      // تطبيق الفلاتر
-      applyFilters();
-      
-      const activeTasks = filteredTasks.filter(t => t.status !== "منجز");
-      const doneTasks = filteredTasks.filter(t => t.status === "منجز");
-      
-      const bg = darkMode ? 'bg-gray-800' : 'bg-white';
-      const textColor = darkMode ? 'text-white' : 'text-black';
-      const input = darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-black';
-      const buttonBg = darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300';
-      
-      const app = document.getElementById("app");
-      app.innerHTML = `
-        <div class="flex justify-between items-center mb-6">
-          <h1 class="text-2xl font-bold">إدارة الطلبات</h1>
-          <div class="flex gap-4">
-            <button onclick="toggleMode()" class="px-4 py-2 rounded-full bg-[#ef5b0c] text-white hover:bg-orange-600 transition-all flex items-center gap-2">
-              <i class="ph ${darkMode ? 'ph-sun' : 'ph-moon'}"></i>
-              ${darkMode ? "الوضع النهاري" : "الوضع الليلي"}
-            </button>
-            <button onclick="exportTasks()" class="px-4 py-2 rounded-full ${buttonBg} ${textColor} transition-all flex items-center gap-2">
-              <i class="ph ph-download"></i>
-              تصدير
-            </button>
-          </div>
-        </div>
-
-        <!-- قسم البحث والفلاتر -->
-        <div class="p-6 rounded-2xl ${bg} shadow-md mb-8">
-          <div class="flex flex-col md:flex-row gap-4 flex-wrap">
-            <div class="flex-1 min-w-40">
-              <label for="search" class="text-sm text-gray-500 mb-1">بحث</label>
-              <div class="search-container relative">
-                <input id="search" type="text" placeholder="ابحث عن طلب..." class="p-3 pr-10 rounded-xl ${input} w-full" oninput="handleSearch(this.value)" />
-                <i class="ph ph-magnifying-glass absolute left-3 top-3 text-gray-500"></i>
-                <div class="search-results ${bg} border border-gray-700"></div>
-              </div>
-            </div>
-            <div class="flex-1 min-w-40">
-              <label for="department-filter" class="text-sm text-gray-500 mb-1">القسم</label>
-              <select id="department-filter" class="p-3 rounded-xl ${input} w-full" onchange="filterByDepartment(this.value)">
-                <option value="">كل الأقسام</option>
-                ${Object.keys(departments).map(dep => `<option>${dep}</option>`).join('')}
-              </select>
-            </div>
-            <div class="flex-1 min-w-40">
-              <label for="status-filter" class="text-sm text-gray-500 mb-1">الحالة</label>
-              <select id="status-filter" class="p-3 rounded-xl ${input} w-full" onchange="filterByStatus(this.value)">
-                <option value="">كل الحالات</option>
-                ${Object.keys(statuses).map(s => `<option>${s}</option>`).join('')}
-              </select>
-            </div>
-            <div class="flex-1 min-w-40">
-              <label for="priority-filter" class="text-sm text-gray-500 mb-1">الأولوية</label>
-              <select id="priority-filter" class="p-3 rounded-xl ${input} w-full" onchange="filterByPriority(this.value)">
-                <option value="">كل الأولويات</option>
-                ${Object.keys(priorities).map(p => `<option>${p}</option>`).join('')}
-              </select>
-            </div>
-            <div class="flex-1 min-w-40">
-              <label for="sort-by" class="text-sm text-gray-500 mb-1">ترتيب</label>
-              <select id="sort-by" class="p-3 rounded-xl ${input} w-full" onchange="sortBy(this.value)">
-                <option value="">بدون ترتيب</option>
-                <option value="deadline">موعد التسليم</option>
-                <option value="title">العنوان</option>
-                <option value="priority">الأولوية</option>
-                <option value="department">القسم</option>
-                <option value="createdAt">تاريخ الإنشاء</option>
-              </select>
-            </div>
-          </div>
-          <div class="flex justify-end mt-4">
-            <button onclick="resetFilters()" class="px-4 py-2 rounded-lg ${buttonBg} ${textColor} transition-all flex items-center gap-2">
-              <i class="ph ph-x"></i>
-              إعادة تعيين الفلاتر
-            </button>
-          </div>
-        </div>
-
-        <!-- قسم الطلبات النشطة -->
-        <div class="mb-10">
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-bold">الطلبات النشطة</h2>
-            <p class="text-sm text-gray-500">${activeTasks.length} طلب</p>
-          </div>
-          ${activeTasks.length > 0 ? `
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mb-10">
-              ${activeTasks.map(t => renderTaskCard(t)).join('')}
-            </div>
-          ` : '<div class="p-10 text-center text-gray-500 border border-dashed rounded-lg">لا توجد طلبات نشطة</div>'}
-        </div>
-
-        <!-- قسم الطلبات المنجزة -->
-        <div>
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-bold">الطلبات المنجزة</h2>
-            <p class="text-sm text-gray-500">${doneTasks.length} طلب</p>
-          </div>
-          ${doneTasks.length > 0 ? `
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              ${doneTasks.map(t => renderTaskCard(t, true)).join('')}
-            </div>
-          ` : '<div class="p-10 text-center text-gray-500 border border-dashed rounded-lg">لا توجد طلبات منجزة</div>'}
-        </div>
-      `;
-      
-      // تحديث حالة الفلاتر الحالية في واجهة المستخدم
-      if (currentFilter.department) {
-        document.getElementById('department-filter').value = currentFilter.department;
-      }
-      if (currentFilter.status) {
-        document.getElementById('status-filter').value = currentFilter.status;
-      }
-      if (currentFilter.priority) {
-        document.getElementById('priority-filter').value = currentFilter.priority;
-      }
-      if (currentSort.field) {
-        document.getElementById('sort-by').value = currentSort.field;
-      }
-      if (searchTerm) {
-        document.getElementById('search').value = searchTerm;
-      }
-    }
-    
-    // دالة إنشاء بطاقة الطلب
-    function renderTaskCard(task, isCompleted = false) {
-      const statusColor = statuses[task.status]?.color || "#999";
-      const bgColor = darkMode
-        ? `linear-gradient(to bottom, ${hexToRgba(statusColor, 0.2)}, #1f2937)`
-        : `linear-gradient(to bottom, ${hexToRgba(statusColor, 0.3)}, white)`;
-
-      const opacity = isCompleted ? "opacity-60" : "";
-      const borderColor = darkMode ? "#4b5563" : "#ccc";
-      const textColor = darkMode ? "text-gray-300" : "text-gray-800";
-      const priorityClass = task.priority === "عالي" ? "priority-high" : 
-                          task.priority === "متوسط" ? "priority-medium" : "priority-low";
-
-      const deadlineDate = task.deadline ? new Date(task.deadline) : null;
-      const today = new Date();
-      const isOverdue = deadlineDate && deadlineDate < today && task.status !== "منجز";
-      const formattedDeadline = task.deadline ? new Date(task.deadline).toLocaleDateString('en-US') : "--";
-      
-      // إظهار التاغات
-      const tagsHTML = task.tags && task.tags.length > 0 ? `
-        <div class="flex flex-wrap gap-1 mt-2">
-          ${task.tags.map(tag => {
-            const tagInfo = tagsOptions.find(t => t.id === tag) || { id: tag, color: "#999" };
-            return `<span class="tag text-xs" style="background-color: ${hexToRgba(tagInfo.color, 0.2)}; color: ${tagInfo.color};">${tag}</span>`;
-          }).join('')}
-        </div>
-      ` : '';
-      
-      // إظهار المسؤول عن الطلب
-      const assignedHTML = task.assignedTo ? `
-        <div class="flex items-center mt-2">
-          <span class="text-xs text-gray-500 ml-2">المسؤول:</span>
-          <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs" style="background-color: #3498db; color: white;">
-            ${teamMembers.find(t => t.id === task.assignedTo)?.avatar || '?'}
-          </div>
-        </div>
-      ` : '';
-
-      return `
-        <div class="task-card p-5 rounded-2xl border shadow-md transition ${opacity} ${priorityClass} cursor-pointer" 
-             style="background: ${bgColor}; border-color: ${borderColor};"
-             onclick="showTaskDetails(${task.id})">
-          <div class="flex justify-between items-center mb-3">
-            <span class="px-3 py-1 text-xs font-semibold rounded-full flex items-center gap-1" 
-                  style="background:${departments[task.department]?.color || '#ccc'}; color:#000">
-              <i class="ph ${departments[task.department]?.icon || 'ph-folder'}"></i>
-              ${task.department || "غير محدد"}
-            </span>
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-1 rounded-full text-xs ${darkMode ? 'text-white' : 'text-gray-800'} flex items-center gap-1">
-                <i class="ph ${priorities[task.priority]?.icon}" style="color: ${priorities[task.priority]?.color}"></i>
-                ${task.priority}
-              </span>
-              <span class="px-2 py-1 rounded-full text-xs ${darkMode ? 'text-white' : 'text-gray-800'} flex items-center gap-1">
-                <i class="ph ${statuses[task.status]?.icon}" style="color: ${statuses[task.status]?.color}"></i>
-                ${task.status}
-              </span>
-            </div>
-          </div>
-          <h2 class="text-lg font-bold mb-2">${task.title || "بدون عنوان"}</h2>
-          <div class="space-y-1 text-sm ${textColor}">
-            <p><i class="ph ph-user"></i> ${task.requester || "--"}</p>
-            ${task.size ? `<p><i class="ph ph-rulers"></i> المقاس: ${task.size}</p>` : ''}
-            ${task.type ? `<p><i class="ph ph-tag"></i> النوع: ${task.type}</p>` : ''}
-            <p><i class="ph ph-calendar"></i> التسليم: 
-              <span class="${isOverdue ? 'text-red-500 font-bold' : ''}">${formattedDeadline} ${isOverdue ? '<i class="ph ph-warning text-red-500"></i>' : ''}</span>
-            </p>
-            ${task.link ? `<p><i class="ph ph-link"></i> <a href="${task.link}" target="_blank" class="text-blue-400 underline hover:text-blue-600 cursor-pointer" onclick="event.stopPropagation()">رابط</a></p>` : ''}
-          </div>
-          ${tagsHTML}
-          ${assignedHTML}
-          <div class="flex justify-between items-center mt-3">
-            <span class="text-xs text-gray-500">${new Date(task.createdAt).toLocaleDateString('en-US')}</span>
-            <div class="flex gap-2">
-              <button onclick="editTask(${task.id}); event.stopPropagation();" class="text-blue-500 text-xl hover:text-blue-700 transition">
-                <i class="ph ph-pencil-simple"></i>
-              </button>
-              <button onclick="confirmDeleteTask(${task.id}); event.stopPropagation();" class="text-red-500 text-xl hover:text-red-700 transition">
-                <i class="ph ph-trash-simple"></i>
-              </button>
-            </div>
-          </div>
-        </div>`;
-    }
-    
-    // دالة تطبيق الفلاتر
-    function applyFilters() {
-      filteredTasks = tasks.filter(task => {
-        // تطبيق البحث
-        if (searchTerm && !task.title.toLowerCase().includes(searchTerm.toLowerCase()) && 
-            !task.requester.toLowerCase().includes(searchTerm.toLowerCase()) && 
-            !(task.description && task.description.toLowerCase().includes(searchTerm.toLowerCase()))) {
-          return false;
-        }
-        
-        // تطبيق القسم
-        if (currentFilter.department && task.department !== currentFilter.department) {
-          return false;
-        }
-        
-        // تطبيق الحالة
-        if (currentFilter.status && task.status !== currentFilter.status) {
-          return false;
-        }
-        
-        // تطبيق الأولوية
-        if (currentFilter.priority && task.priority !== currentFilter.priority) {
-          return false;
-        }
-        
-        // تطبيق التاغات
-        if (currentFilter.tags.length > 0) {
-          if (!task.tags || !currentFilter.tags.some(tag => task.tags.includes(tag))) {
-            return false;
-          }
-        }
-        
-        return true;
-      });
-      
-      // تطبيق الترتيب
-      if (currentSort.field) {
-        filteredTasks.sort((a, b) => {
-          let valA = a[currentSort.field] || '';
-          let valB = b[currentSort.field] || '';
-          
-          if (currentSort.field === 'deadline') {
-            valA = valA ? new Date(valA).getTime() : Infinity;
-            valB = valB ? new Date(valB).getTime() : Infinity;
-          } else if (currentSort.field === 'createdAt') {
-            valA = valA ? new Date(valA).getTime() : 0;
-            valB = valB ? new Date(valB).getTime() : 0;
-          }
-          
-          if (valA < valB) return currentSort.ascending ? -1 : 1;
-          if (valA > valB) return currentSort.ascending ? 1 : -1;
-          return 0;
-        });
-      }
-    }
-    
-    // دالة عرض تفاصيل الطلب
-    function showTaskDetails(id) {
-      const task = tasks.find(t => t.id === id);
-      if (!task) return;
-      
-      const taskComments = comments[id] || [];
-      const bg = darkMode ? 'bg-gray-700' : 'bg-gray-200';
-      const textColor = darkMode ? 'text-white' : 'text-black';
-      
-      const taskDetailsContent = document.getElementById('task-details-content');
-      
-      // حساب الوقت المنقضي منذ إنشاء الطلب
-      const created = new Date(task.createdAt);
-      const now = new Date();
-      const diffTime = Math.abs(now - created);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
-      // حساب نسبة الإنجاز (وهمي)
-      let progressPercentage = 0;
-      switch (task.status) {
-        case "منجز": progressPercentage = 100; break;
-        case "جاري العمل": progressPercentage = 60; break;
-        case "انتظار الرد": progressPercentage = 40; break;
-        case "انتظار المحتوى": progressPercentage = 30; break;
-        case "غير منجز": progressPercentage = 10; break;
-        default: progressPercentage = 0;
-      }
-      
-      taskDetailsContent.innerHTML = `
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <!-- تفاصيل الطلب -->
-          <div class="md:col-span-2 space-y-4">
-            <div class="flex flex-wrap gap-2 mb-4">
-              <span class="px-3 py-1 text-sm rounded-full" style="background:${departments[task.department]?.color || '#ccc'}; color:#000">
-                <i class="ph ${departments[task.department]?.icon || 'ph-folder'}"></i> ${task.department || "غير محدد"}
-              </span>
-              <span class="px-3 py-1 text-sm rounded-full" style="background:${hexToRgba(statuses[task.status]?.color || '#999', 0.2)}; color:${statuses[task.status]?.color || '#999'}">
-                <i class="ph ${statuses[task.status]?.icon || 'ph-circle'}"></i> ${task.status}
-              </span>
-              <span class="px-3 py-1 text-sm rounded-full" style="background:${hexToRgba(priorities[task.priority]?.color || '#999', 0.2)}; color:${priorities[task.priority]?.color || '#999'}">
-                <i class="ph ${priorities[task.priority]?.icon || 'ph-circle'}"></i> ${task.priority}
-              </span>
-            </div>
-            
-            <h1 class="text-2xl font-bold">${task.title}</h1>
-            
-            ${task.description ? `
-              <div class="p-4 rounded-lg ${bg} bg-opacity-50">
-                <h3 class="font-bold mb-2">وصف الطلب:</h3>
-                <p>${task.description}</p>
-              </div>
-            ` : ''}
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div class="space-y-2">
-                <p><span class="text-gray-500">صاحب الطلب:</span> ${task.requester}</p>
-                <p><span class="text-gray-500">تاريخ الإنشاء:</span> ${new Date(task.createdAt).toLocaleString('en-US')}</p>
-                <p><span class="text-gray-500">منذ:</span> ${diffDays} يوم</p>
-                ${task.type ? `<p><span class="text-gray-500">النوع:</span> ${task.type}</p>` : ''}
-              </div>
-              <div class="space-y-2">
-                <p><span class="text-gray-500">المقاس:</span> ${task.size || "غير محدد"}</p>
-                <p><span class="text-gray-500">الموعد النهائي:</span> ${task.deadline ? new Date(task.deadline).toLocaleDateString('en-US') : "غير محدد"}</p>
-                ${task.link ? `<p><span class="text-gray-500">الرابط:</span> <a href="${task.link}" target="_blank" class="text-blue-400 underline hover:text-blue-600">فتح الرابط</a></p>` : ''}
-                ${task.completedAt ? `<p><span class="text-gray-500">تاريخ الإنجاز:</span> ${new Date(task.completedAt).toLocaleString('en-US')}</p>` : ''}
-              </div>
-            </div>
-            
-            <div class="mt-4">
-              <p class="text-gray-500 mb-2">نسبة الإنجاز:</p>
-              <div class="progress-bar">
-                <div class="progress-bar-fill" style="width: ${progressPercentage}%"></div>
-              </div>
-              <p class="text-sm text-right mt-1">${progressPercentage}%</p>
-            </div>
-            
-            ${task.tags && task.tags.length > 0 ? `
-              <div class="mt-4">
-                <p class="text-gray-500 mb-2">العلامات:</p>
-                <div class="flex flex-wrap gap-2">
-                  ${task.tags.map(tag => {
-                    const tagInfo = tagsOptions.find(t => t.id === tag) || { id: tag, color: "#999" };
-                    return `<span class="tag" style="background-color: ${hexToRgba(tagInfo.color, 0.2)}; color: ${tagInfo.color};">${tag}</span>`;
-                  }).join('')}
-                </div>
-              </div>
-            ` : ''}
-            
-            <div class="flex gap-4 mt-6">
-              <button onclick="editTask(${task.id})" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition flex items-center gap-2">
-                <i class="ph ph-pencil-simple"></i>
-                تعديل الطلب
-              </button>
-              <button onclick="duplicateTask(${task.id})" class="px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition flex items-center gap-2">
-                <i class="ph ph-copy"></i>
-                نسخ الطلب
-              </button>
-              <button onclick="confirmDeleteTask(${task.id})" class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition flex items-center gap-2">
-                <i class="ph ph-trash-simple"></i>
-                حذف الطلب
-              </button>
-            </div>
-          </div>
-          
-          <!-- قسم التعليقات -->
-          <div class="space-y-4">
-            <h2 class="text-lg font-bold">التعليقات والملاحظات</h2>
-            
-            <div class="max-h-96 overflow-y-auto space-y-3 p-2">
-              ${taskComments.length > 0 ? 
-                taskComments.map(comment => `
-                  <div class="comment rounded-lg p-3 ${bg}">
-                    <div class="flex justify-between items-start mb-2">
-                      <div class="flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-600 text-white">
-                          ${comment.user.charAt(0)}
-                        </div>
-                        <span class="font-bold">${comment.user}</span>
-                      </div>
-                      <span class="text-xs text-gray-500">${new Date(comment.timestamp).toLocaleString('en-US')}</span>
-                    </div>
-                    <p>${comment.text}</p>
-                  </div>
-                `).join('') 
-                : '<p class="text-gray-500 text-center">لا توجد تعليقات</p>'
-              }
-            </div>
-            
-            <div>
-              <textarea id="comment-text" rows="3" class="p-3 rounded-lg w-full resize-none ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-black'}" placeholder="أضف تعليقًا..."></textarea>
-              <button onclick="addComment(${task.id})" class="mt-2 px-4 py-2 bg-[#ef5b0c] text-white rounded-lg hover:bg-orange-600 transition w-full">
-                <i class="ph ph-plus"></i> إضافة تعليق
-              </button>
-            </div>
-            
-            <div class="mt-6">
-              <h3 class="font-bold mb-2">تغيير الحالة:</h3>
-              <div class="grid grid-cols-2 gap-2">
-                ${Object.keys(statuses).map(status => `
-                  <button onclick="updateStatus(${task.id}, '${status}')" 
-                      class="px-3 py-2 rounded-lg flex items-center justify-center gap-1 text-sm transition"
-                      style="background: ${hexToRgba(statuses[status].color, 0.2)}; color: ${statuses[status].color}; ${task.status === status ? 'border: 2px solid ' + statuses[status].color : ''}">
-                      <i class="ph ${statuses[status].icon}"></i>
-                      ${status}
-                  </button>
-                `).join('')}
-              </div>
-            </div>
-            
-            <div class="mt-4">
-              <h3 class="font-bold mb-2">تعيين إلى:</h3>
-              <div class="grid grid-cols-2 gap-2">
-                ${teamMembers.map(member => `
-                  <button onclick="assignTask(${task.id}, ${member.id})" 
-                      class="px-3 py-2 rounded-lg flex items-center gap-2 text-sm transition ${darkMode ? 'bg-gray-700' : 'bg-gray-200'} ${task.assignedTo === member.id ? 'border-2 border-blue-500' : ''}">
-                      <div class="w-6 h-6 rounded-full flex items-center justify-center" style="background-color: #3498db; color: white;">
-                        ${member.avatar}
-                      </div>
-                      ${member.name}
-                  </button>
-                `).join('')}
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      // إظهار المودال
-      document.getElementById('task-details-modal').classList.add('show');
-    }
-    
-    // دالة إضافة تعليق
-    function addComment(taskId) {
-      const commentText = document.getElementById('comment-text').value.trim();
-      if (!commentText) {
-        showNotification('يرجى كتابة التعليق قبل الإضافة', 'error');
-        return;
-      }
-      
-      // إنشاء التعليق
-      const newComment = {
-        id: Date.now(),
-        taskId: taskId,
-        user: 'المستخدم الحالي', // قابل للتغيير مع نظام المستخدمين
-        timestamp: new Date().toISOString(),
-        text: commentText
-      };
-      
-      // إضافة التعليق للمهمة
-      if (!comments[taskId]) {
-        comments[taskId] = [];
-      }
-      comments[taskId].push(newComment);
-      
-      // حفظ التعليقات
-      localStorage.setItem('comments', JSON.stringify(comments));
-      
-      // تسجيل النشاط
-      logActivity('إضافة تعليق', taskId, commentText.substring(0, 30) + (commentText.length > 30 ? '...' : ''));
-      
-      // تحديث واجهة المستخدم
-      showTaskDetails(taskId);
-      showNotification('تم إضافة التعليق بنجاح');
-    }
-    
-    // دالة تعيين المهمة لشخص
-    function assignTask(taskId, userId) {
-      const taskIndex = tasks.findIndex(t => t.id === taskId);
-      if (taskIndex === -1) return;
-      
-      const member = teamMembers.find(m => m.id === userId);
-      if (!member) return;
-      
-      // تحديث المهمة
-      tasks[taskIndex].assignedTo = userId;
-      
-      // حفظ التغييرات
-      localStorage.setItem('tasks', JSON.stringify(tasks));
-      
-      // تسجيل النشاط
-      logActivity('تعيين مسؤول', taskId, `تم تعيين المهمة إلى ${member.name}`);
-      
-      // تحديث واجهة المستخدم
-      showTaskDetails(taskId);
-      showNotification(`تم تعيين الطلب إلى ${member.name} بنجاح`);
-    }
-    
-    // دالة تحديث حالة المهمة
-    function updateStatus(id, status) {
-      const taskIndex = tasks.findIndex(t => t.id === id);
-      if (taskIndex === -1) return;
-      
-      const oldStatus = tasks[taskIndex].status;
-      tasks[taskIndex].status = status;
-      
-      // إذا تم تغيير الحالة إلى منجز، نضيف تاريخ الإنجاز
-      if (status === "منجز" && oldStatus !== "منجز") {
-        tasks[taskIndex].completedAt = new Date().toISOString();
-      } else if (status !== "منجز") {
-        // إذا تغيرت من منجز إلى غير منجز، نحذف تاريخ الإنجاز
-        delete tasks[taskIndex].completedAt;
-      }
-      
-      // حفظ التغييرات
-      localStorage.setItem("tasks", JSON.stringify(tasks));
-      
-      // تسجيل النشاط
-      logActivity(status, id, `تم تغيير الحالة من ${oldStatus} إلى ${status}`);
-      
-      // تحديث الواجهة
-      updateUI();
-      
-      // إذا كان في المودال، نحدثه
-      if (document.getElementById('task-details-modal').classList.contains('show')) {
-        showTaskDetails(id);
-      }
-      
-      showNotification(`تم تحديث حالة الطلب إلى: ${status}`);
-    }
-    
     // دالة إنشاء قسم التقارير
     function renderReports() {
-      const bg = darkMode ? 'bg-gray-800' : 'bg-white';
-      
       const app = document.getElementById("app");
       app.innerHTML = `
         <div class="flex justify-between items-center mb-6">
-          <h1 class="text-2xl font-bold">التقارير والإحصائيات</h1>
+          <h1 class="text-3xl font-bold">التقارير والإحصائيات</h1>
           <div class="flex gap-4">
-            <button onclick="toggleMode()" class="px-4 py-2 rounded-full bg-[#ef5b0c] text-white hover:bg-orange-600 transition-all flex items-center gap-2">
+            <button onclick="toggleMode()" class="px-5 py-2 rounded-full btn-primary flex items-center gap-2">
               <i class="ph ${darkMode ? 'ph-sun' : 'ph-moon'}"></i>
               ${darkMode ? "الوضع النهاري" : "الوضع الليلي"}
             </button>
-            <button onclick="exportReport()" class="px-4 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-all flex items-center gap-2">
+            <button onclick="exportReport()" class="px-5 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-all flex items-center gap-2">
               <i class="ph ph-file-pdf"></i>
               تصدير التقرير
             </button>
           </div>
         </div>
         
-        <!-- ملخص الإحصائيات -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div class="p-4 rounded-xl ${bg} shadow-md">
-            <div class="flex justify-between items-center">
-              <div>
-                <h3 class="text-sm text-gray-500">إجمالي الطلبات</h3>
-                <p class="text-2xl font-bold">${tasks.length}</p>
-              </div>
-              <div class="text-3xl text-blue-500">
-                <i class="ph ph-clipboard-text"></i>
-              </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="stat-card flex items-center justify-between">
+            <div>
+              <h3 class="text-base text-gray-500 mb-1">إجمالي الطلبات</h3>
+              <p class="text-3xl font-extrabold">${tasks.length}</p>
+            </div>
+            <div class="text-4xl text-blue-500">
+              <i class="ph ph-clipboard-text"></i>
             </div>
           </div>
-          <div class="p-4 rounded-xl ${bg} shadow-md">
-            <div class="flex justify-between items-center">
-              <div>
-                <h3 class="text-sm text-gray-500">الطلبات المنجزة</h3>
-                <p class="text-2xl font-bold">${tasks.filter(t => t.status === "منجز").length}</p>
-              </div>
-              <div class="text-3xl text-green-500">
-                <i class="ph ph-check-circle"></i>
-              </div>
+          <div class="stat-card flex items-center justify-between">
+            <div>
+              <h3 class="text-base text-gray-500 mb-1">الطلبات المنجزة</h3>
+              <p class="text-3xl font-extrabold">${tasks.filter(t => t.status === "منجز").length}</p>
+            </div>
+            <div class="text-4xl text-green-500">
+              <i class="ph ph-check-circle"></i>
             </div>
           </div>
-          <div class="p-4 rounded-xl ${bg} shadow-md">
-            <div class="flex justify-between items-center">
-              <div>
-                <h3 class="text-sm text-gray-500">الطلبات المتأخرة</h3>
-                <p class="text-2xl font-bold">${tasks.filter(t => {
+          <div class="stat-card flex items-center justify-between">
+            <div>
+              <h3 class="text-base text-gray-500 mb-1">الطلبات المتأخرة</h3>
+              <p class="text-3xl font-extrabold">${tasks.filter(t => {
                   if (!t.deadline || t.status === "منجز" || t.status === "ملغي") return false;
                   return new Date(t.deadline) < new Date();
                 }).length}</p>
-              </div>
-              <div class="text-3xl text-red-500">
-                <i class="ph ph-clock-countdown"></i>
-              </div>
+            </div>
+            <div class="text-4xl text-red-500">
+              <i class="ph ph-clock-countdown"></i>
             </div>
           </div>
-          <div class="p-4 rounded-xl ${bg} shadow-md">
-            <div class="flex justify-between items-center">
-              <div>
-                <h3 class="text-sm text-gray-500">نسبة الإنجاز</h3>
-                <p class="text-2xl font-bold">${tasks.length > 0 ? Math.round((tasks.filter(t => t.status === "منجز").length / tasks.length) * 100) : 0}%</p>
-              </div>
-              <div class="text-3xl text-purple-500">
-                <i class="ph ph-chart-pie"></i>
-              </div>
+          <div class="stat-card flex items-center justify-between">
+            <div>
+              <h3 class="text-base text-gray-500 mb-1">نسبة الإنجاز</h3>
+              <p class="text-3xl font-extrabold">${tasks.length > 0 ? Math.round((tasks.filter(t => t.status === "منجز").length / tasks.length) * 100) : 0}%</p>
+            </div>
+            <div class="text-4xl text-purple-500">
+              <i class="ph ph-chart-pie"></i>
             </div>
           </div>
         </div>
         
-        <!-- مخططات التقارير -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <div class="p-6 rounded-xl ${bg} shadow-md">
-            <h2 class="text-lg font-bold mb-4">توزيع الطلبات حسب القسم</h2>
+          <div class="p-6 rounded-2xl stat-card">
+            <h2 class="text-xl font-bold mb-4">توزيع الطلبات حسب القسم</h2>
             <div class="h-60">
               <canvas id="reportDepartmentsChart"></canvas>
             </div>
           </div>
           
-          <div class="p-6 rounded-xl ${bg} shadow-md">
-            <h2 class="text-lg font-bold mb-4">توزيع الطلبات حسب الحالة</h2>
+          <div class="p-6 rounded-2xl stat-card">
+            <h2 class="text-xl font-bold mb-4">توزيع الطلبات حسب الحالة</h2>
             <div class="h-60">
               <canvas id="reportStatusChart"></canvas>
             </div>
           </div>
         </div>
         
-        <!-- سجل الأنشطة -->
-        <div class="p-6 rounded-xl ${bg} shadow-md mb-8">
-          <h2 class="text-lg font-bold mb-4">سجل الأنشطة</h2>
-          <div class="overflow-x-auto">
-            <table class="w-full">
+        <div class="p-6 rounded-2xl stat-card mb-8">
+          <h2 class="text-xl font-bold mb-4">سجل الأنشطة</h2>
+          <div class="overflow-x-auto rounded-lg border border-[var(--border-light)]">
+            <table class="w-full text-base">
               <thead>
-                <tr class="border-b border-gray-700">
-                  <th class="px-4 py-2 text-right">التاريخ</th>
-                  <th class="px-4 py-2 text-right">الطلب</th>
-                  <th class="px-4 py-2 text-right">النشاط</th>
-                  <th class="px-4 py-2 text-right">التفاصيل</th>
-                  <th class="px-4 py-2 text-right">المستخدم</th>
+                <tr class="text-gray-500">
+                  <th class="px-4 py-3 text-right">التاريخ</th>
+                  <th class="px-4 py-3 text-right">الطلب</th>
+                  <th class="px-4 py-3 text-right">النشاط</th>
+                  <th class="px-4 py-3 text-right">التفاصيل</th>
+                  <th class="px-4 py-3 text-right">المستخدم</th>
                 </tr>
               </thead>
               <tbody>
                 ${activityLog.slice(0, 20).map(log => `
-                  <tr class="border-b border-gray-700 hover:bg-gray-700">
-                    <td class="px-4 py-2 text-sm">${new Date(log.timestamp).toLocaleString('en-US')}</td>
-                    <td class="px-4 py-2">${log.taskTitle}</td>
+                  <tr class="hover:bg-gray-100">
+                    <td class="px-4 py-2 text-sm text-gray-500">${new Date(log.timestamp).toLocaleString('ar-SA')}</td>
+                    <td class="px-4 py-2 font-medium">${log.taskTitle}</td>
                     <td class="px-4 py-2">
-                      <span class="px-2 py-1 rounded-full text-xs" style="background: ${hexToRgba(statuses[log.action]?.color || '#999', 0.2)}; color: ${statuses[log.action]?.color || '#999'}">
+                      <span class="px-2 py-1 rounded-full text-xs font-semibold" style="background: ${hexToRgba(statuses[log.action]?.color || '#999', 0.15)}; color: ${statuses[log.action]?.color || '#999'}">
                         ${log.action}
                       </span>
                     </td>
-                    <td class="px-4 py-2">${log.details || '-'}</td>
-                    <td class="px-4 py-2">${log.user}</td>
+                    <td class="px-4 py-2 text-gray-600">${log.details || '-'}</td>
+                    <td class="px-4 py-2 text-gray-500">${log.user}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -1614,19 +1824,18 @@
           </div>
         </div>
         
-        <!-- الطلبات المتأخرة -->
-        <div class="p-6 rounded-xl ${bg} shadow-md mb-8">
-          <h2 class="text-lg font-bold mb-4">الطلبات المتأخرة</h2>
-          <div class="overflow-x-auto">
-            <table class="w-full">
+        <div class="p-6 rounded-2xl stat-card mb-8">
+          <h2 class="text-xl font-bold mb-4">الطلبات المتأخرة</h2>
+          <div class="overflow-x-auto rounded-lg border border-[var(--border-light)]">
+            <table class="w-full text-base">
               <thead>
-                <tr class="border-b border-gray-700">
-                  <th class="px-4 py-2 text-right">العنوان</th>
-                  <th class="px-4 py-2 text-right">القسم</th>
-                  <th class="px-4 py-2 text-right">الموعد النهائي</th>
-                  <th class="px-4 py-2 text-right">التأخير (بالأيام)</th>
-                  <th class="px-4 py-2 text-right">الحالة</th>
-                  <th class="px-4 py-2 text-right">صاحب الطلب</th>
+                <tr class="text-gray-500">
+                  <th class="px-4 py-3 text-right">العنوان</th>
+                  <th class="px-4 py-3 text-right">القسم</th>
+                  <th class="px-4 py-3 text-right">الموعد النهائي</th>
+                  <th class="px-4 py-3 text-right">التأخير (بالأيام)</th>
+                  <th class="px-4 py-3 text-right">الحالة</th>
+                  <th class="px-4 py-3 text-right">صاحب الطلب</th>
                 </tr>
               </thead>
               <tbody>
@@ -1640,21 +1849,21 @@
                   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                   
                   return `
-                    <tr class="border-b border-gray-700 hover:bg-gray-700 cursor-pointer" onclick="showTaskDetails(${task.id})">
+                    <tr class="hover:bg-gray-100 cursor-pointer" onclick="showTaskDetails(${task.id})">
                       <td class="px-4 py-2 font-bold">${task.title}</td>
                       <td class="px-4 py-2">
-                        <span class="px-2 py-1 rounded-full text-xs" style="background: ${departments[task.department]?.color || '#ccc'}; color: #000">
+                        <span class="px-2 py-1 rounded-full text-xs font-semibold" style="background: ${hexToRgba(departments[task.department]?.color || '#ccc', 0.15)}; color: ${departments[task.department]?.color || '#ccc'}">
                           ${task.department}
                         </span>
                       </td>
-                      <td class="px-4 py-2 text-sm">${new Date(task.deadline).toLocaleDateString('en-US')}</td>
+                      <td class="px-4 py-2 text-sm text-gray-600">${new Date(task.deadline).toLocaleDateString('ar-SA')}</td>
                       <td class="px-4 py-2 font-bold text-red-500">${diffDays} يوم</td>
                       <td class="px-4 py-2">
-                        <span class="px-2 py-1 rounded-full text-xs" style="background: ${hexToRgba(statuses[task.status]?.color || '#999', 0.2)}; color: ${statuses[task.status]?.color || '#999'}">
+                        <span class="px-2 py-1 rounded-full text-xs font-semibold" style="background: ${hexToRgba(statuses[task.status]?.color || '#999', 0.15)}; color: ${statuses[task.status]?.color || '#999'}">
                           ${task.status}
                         </span>
                       </td>
-                      <td class="px-4 py-2">${task.requester}</td>
+                      <td class="px-4 py-2 text-gray-600">${task.requester}</td>
                     </tr>
                   `;
                 }).join('') || `
@@ -1776,91 +1985,83 @@
     
     // دالة إنشاء قسم الإعدادات
     function renderSettings() {
-      const bg = darkMode ? 'bg-gray-800' : 'bg-white';
-      const textColor = darkMode ? 'text-white' : 'text-black';
-      const input = darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-black';
-      
       const app = document.getElementById("app");
       app.innerHTML = `
         <div class="flex justify-between items-center mb-6">
-          <h1 class="text-2xl font-bold">الإعدادات</h1>
+          <h1 class="text-3xl font-bold">الإعدادات</h1>
           <div>
-            <button onclick="toggleMode()" class="px-4 py-2 rounded-full bg-[#ef5b0c] text-white hover:bg-orange-600 transition-all flex items-center gap-2">
+            <button onclick="toggleMode()" class="px-5 py-2 rounded-full btn-primary flex items-center gap-2">
               <i class="ph ${darkMode ? 'ph-sun' : 'ph-moon'}"></i>
               ${darkMode ? "الوضع النهاري" : "الوضع الليلي"}
             </button>
           </div>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <!-- المظهر -->
-          <div class="p-6 rounded-xl ${bg} shadow-md">
-            <h2 class="text-lg font-bold mb-4">المظهر</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="p-6 rounded-2xl stat-card">
+            <h2 class="text-xl font-bold mb-4">المظهر</h2>
             <div class="space-y-4">
               <div>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="theme" value="dark" ${darkMode ? 'checked' : ''} onchange="setDarkMode(true)">
+                <label class="flex items-center gap-2 cursor-pointer text-lg">
+                  <input type="radio" name="theme" value="dark" class="w-5 h-5" ${darkMode ? 'checked' : ''} onchange="setDarkMode(true)">
                   <span>الوضع الداكن</span>
                 </label>
               </div>
               <div>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="theme" value="light" ${!darkMode ? 'checked' : ''} onchange="setDarkMode(false)">
+                <label class="flex items-center gap-2 cursor-pointer text-lg">
+                  <input type="radio" name="theme" value="light" class="w-5 h-5" ${!darkMode ? 'checked' : ''} onchange="setDarkMode(false)">
                   <span>الوضع الفاتح</span>
                 </label>
               </div>
             </div>
           </div>
           
-          <!-- الإشعارات -->
-          <div class="p-6 rounded-xl ${bg} shadow-md">
-            <h2 class="text-lg font-bold mb-4">الإشعارات</h2>
+          <div class="p-6 rounded-2xl stat-card">
+            <h2 class="text-xl font-bold mb-4">الإشعارات</h2>
             <div class="space-y-4">
               <div>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" id="notification-enabled" checked>
+                <label class="flex items-center gap-2 cursor-pointer text-lg">
+                  <input type="checkbox" id="notification-enabled" class="w-5 h-5" checked>
                   <span>تفعيل الإشعارات</span>
                 </label>
               </div>
               <div>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" id="notification-sound" checked>
+                <label class="flex items-center gap-2 cursor-pointer text-lg">
+                  <input type="checkbox" id="notification-sound" class="w-5 h-5" checked>
                   <span>صوت الإشعارات</span>
                 </label>
               </div>
             </div>
           </div>
           
-          <!-- المستخدم -->
-          <div class="p-6 rounded-xl ${bg} shadow-md">
-            <h2 class="text-lg font-bold mb-4">المستخدم</h2>
+          <div class="p-6 rounded-2xl stat-card">
+            <h2 class="text-xl font-bold mb-4">المستخدم</h2>
             <div class="space-y-4">
               <div>
-                <label class="text-sm text-gray-500 mb-1">اسم المستخدم</label>
-                <input type="text" class="p-3 rounded-lg ${input} w-full" value="المستخدم الحالي">
+                <label class="text-sm text-gray-500 mb-1 block">اسم المستخدم</label>
+                <input type="text" class="p-3 rounded-xl w-full" value="المستخدم الحالي">
               </div>
               <div>
-                <label class="text-sm text-gray-500 mb-1">البريد الإلكتروني</label>
-                <input type="email" class="p-3 rounded-lg ${input} w-full" value="user@example.com">
+                <label class="text-sm text-gray-500 mb-1 block">البريد الإلكتروني</label>
+                <input type="email" class="p-3 rounded-xl w-full" value="user@example.com">
               </div>
             </div>
           </div>
           
-          <!-- النسخ الاحتياطي واستعادة البيانات -->
-          <div class="p-6 rounded-xl ${bg} shadow-md col-span-full">
-            <h2 class="text-lg font-bold mb-4">النسخ الاحتياطي واستعادة البيانات</h2>
+          <div class="p-6 rounded-2xl stat-card col-span-full">
+            <h2 class="text-xl font-bold mb-4">النسخ الاحتياطي واستعادة البيانات</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <button onclick="exportData()" class="p-3 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-200'} ${textColor} hover:bg-gray-600 transition w-full flex items-center justify-center gap-2">
-                  <i class="ph ph-download"></i>
+                <button onclick="exportData()" class="p-3 rounded-lg btn-secondary hover:bg-gray-600 transition w-full flex items-center justify-center gap-2 text-base">
+                  <i class="ph ph-download text-xl"></i>
                   تصدير جميع البيانات
                 </button>
               </div>
               <div>
                 <div class="relative">
                   <input type="file" id="import-file" accept=".json" class="absolute inset-0 opacity-0 cursor-pointer" onchange="importData(event)">
-                  <button class="p-3 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-200'} ${textColor} hover:bg-gray-600 transition w-full flex items-center justify-center gap-2">
-                    <i class="ph ph-upload"></i>
+                  <button class="p-3 rounded-lg btn-secondary hover:bg-gray-600 transition w-full flex items-center justify-center gap-2 text-base">
+                    <i class="ph ph-upload text-xl"></i>
                     استيراد البيانات
                   </button>
                 </div>
@@ -1868,29 +2069,26 @@
             </div>
           </div>
           
-          <!-- إدارة البيانات -->
-          <div class="p-6 rounded-xl ${bg} shadow-md col-span-full">
-            <h2 class="text-lg font-bold mb-4 text-red-500">خيارات متقدمة</h2>
-            <div class="space-y-4">
-              <p class="text-gray-500">تحذير: هذه الخيارات ستؤدي إلى حذف البيانات نهائياً ولا يمكن التراجع عنها.</p>
-              <div class="flex flex-wrap gap-4">
-                <button onclick="clearTasks()" class="p-3 rounded-lg bg-red-600 text-white hover:bg-red-700 transition flex items-center gap-2">
-                  <i class="ph ph-trash"></i>
-                  حذف جميع الطلبات
-                </button>
-                <button onclick="clearComments()" class="p-3 rounded-lg bg-red-600 text-white hover:bg-red-700 transition flex items-center gap-2">
-                  <i class="ph ph-chats"></i>
-                  حذف جميع التعليقات
-                </button>
-                <button onclick="clearActivityLog()" class="p-3 rounded-lg bg-red-600 text-white hover:bg-red-700 transition flex items-center gap-2">
-                  <i class="ph ph-clock"></i>
-                  حذف سجل الأنشطة
-                </button>
-                <button onclick="resetAll()" class="p-3 rounded-lg bg-red-800 text-white hover:bg-red-900 transition flex items-center gap-2">
-                  <i class="ph ph-prohibit"></i>
-                  إعادة تعيين النظام بالكامل
-                </button>
-              </div>
+          <div class="p-6 rounded-2xl stat-card col-span-full">
+            <h2 class="text-xl font-bold mb-4 text-red-500">خيارات متقدمة</h2>
+            <p class="text-gray-500 mb-4 text-base">تحذير: هذه الخيارات ستؤدي إلى حذف البيانات نهائياً ولا يمكن التراجع عنها.</p>
+            <div class="flex flex-wrap gap-4">
+              <button onclick="clearTasks()" class="p-3 rounded-lg bg-red-600 text-white hover:bg-red-700 transition flex items-center gap-2 text-base">
+                <i class="ph ph-trash text-xl"></i>
+                حذف جميع الطلبات
+              </button>
+              <button onclick="clearComments()" class="p-3 rounded-lg bg-red-600 text-white hover:bg-red-700 transition flex items-center gap-2 text-base">
+                <i class="ph ph-chats text-xl"></i>
+                حذف جميع التعليقات
+              </button>
+              <button onclick="clearActivityLog()" class="p-3 rounded-lg bg-red-600 text-white hover:bg-red-700 transition flex items-center gap-2 text-base">
+                <i class="ph ph-clock text-xl"></i>
+                حذف سجل الأنشطة
+              </button>
+              <button onclick="resetAll()" class="p-3 rounded-lg bg-red-800 text-white hover:bg-red-900 transition flex items-center gap-2 text-base">
+                <i class="ph ph-prohibit text-xl"></i>
+                إعادة تعيين النظام بالكامل
+              </button>
             </div>
           </div>
         </div>
@@ -1912,6 +2110,18 @@
     // دالة تصفية المهام حسب الأولوية
     function filterByPriority(value) {
       currentFilter.priority = value || null;
+      updateUI();
+    }
+
+    // دالة تصفية المهام حسب التاغ
+    function filterByTag(tagValue, isChecked) {
+      if (isChecked) {
+        if (!currentFilter.tags.includes(tagValue)) {
+          currentFilter.tags.push(tagValue);
+        }
+      } else {
+        currentFilter.tags = currentFilter.tags.filter(tag => tag !== tagValue);
+      }
       updateUI();
     }
     
@@ -1939,6 +2149,10 @@
       searchTerm = '';
       currentSort = { field: null, ascending: true };
       updateUI();
+      // تأكد من إلغاء تحديد مربعات التحديد للتاغات
+      document.querySelectorAll('.filter-tag-checkbox').forEach(checkbox => {
+        checkbox.checked = false;
+      });
       showNotification('تم إعادة تعيين الفلاتر');
     }
     
@@ -1946,7 +2160,6 @@
     function openTaskModal() {
       const modalTitle = document.getElementById('modal-title');
       const taskForm = document.getElementById('task-form');
-      const bg = darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-black';
       
       modalTitle.textContent = editId ? 'تعديل الطلب' : 'إضافة طلب جديد';
       
@@ -1966,35 +2179,35 @@
           ${formFields.map(f => `
             <div class="flex flex-col">
               <label for="${f.id}" class="text-sm text-gray-500 mb-1">${f.label} ${f.required ? '<span class="text-red-500">*</span>' : ''}</label>
-              <input id="${f.id}" type="${f.type || 'text'}" class="p-3 rounded-xl ${bg} w-full" ${f.required ? 'required' : ''} />
+              <input id="${f.id}" type="${f.type || 'text'}" class="p-3 rounded-xl w-full" ${f.required ? 'required' : ''} />
             </div>
           `).join('')}
           
           <div class="flex flex-col">
             <label for="department" class="text-sm text-gray-500 mb-1">القسم</label>
-            <select id="department" class="p-3 rounded-xl ${bg}">
+            <select id="department" class="p-3 rounded-xl w-full">
               ${Object.keys(departments).map(dep => `<option>${dep}</option>`).join('')}
             </select>
           </div>
           
           <div class="flex flex-col">
             <label for="priority" class="text-sm text-gray-500 mb-1">الأولوية</label>
-            <select id="priority" class="p-3 rounded-xl ${bg}">
+            <select id="priority" class="p-3 rounded-xl w-full">
               ${Object.keys(priorities).map(p => `<option>${p}</option>`).join('')}
             </select>
           </div>
           
           <div class="flex flex-col col-span-full">
             <label for="description" class="text-sm text-gray-500 mb-1">تفاصيل الطلب</label>
-            <textarea id="description" rows="3" class="p-3 rounded-xl ${bg} resize-none"></textarea>
+            <textarea id="description" rows="4" class="p-3 rounded-xl w-full resize-none"></textarea>
           </div>
           
           <div class="flex flex-col col-span-full">
             <label class="text-sm text-gray-500 mb-1">العلامات (التاغات)</label>
             <div class="flex flex-wrap gap-2 mt-1">
               ${tagsOptions.map(tag => `
-                <label class="tag cursor-pointer" style="background-color: ${hexToRgba(tag.color, 0.2)}; color: ${tag.color};">
-                  <input type="checkbox" class="tag-checkbox mr-1" value="${tag.id}"> ${tag.id}
+                <label class="tag cursor-pointer" style="background-color: ${hexToRgba(tag.color, 0.15)}; color: ${tag.color};">
+                  <input type="checkbox" class="tag-checkbox ml-1" value="${tag.id}"> ${tag.id}
                 </label>
               `).join('')}
             </div>
@@ -2002,13 +2215,13 @@
         </div>
         
         <div class="flex gap-4 mt-6">
-          <button onclick="saveTask()" class="flex-1 bg-[#ef5b0c] py-3 rounded-xl text-white font-bold hover:bg-orange-600 transition-all flex items-center justify-center gap-2">
-            <i class="ph ${editId ? 'ph-pencil-simple' : 'ph-plus'}"></i>
+          <button onclick="saveTask()" class="flex-1 btn-primary py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
+            <i class="ph ${editId ? 'ph-pencil-simple' : 'ph-plus'} text-xl"></i>
             ${editId ? "تحديث الطلب" : "إضافة الطلب"}
           </button>
           ${editId ? `
             <button onclick="cancelEdit()" class="flex-1 bg-gray-600 py-3 rounded-xl text-white font-bold hover:bg-gray-700 transition-all flex items-center justify-center gap-2">
-              <i class="ph ph-x"></i>
+              <i class="ph ph-x text-xl"></i>
               إلغاء التعديل
             </button>
           ` : ''}
@@ -2410,7 +2623,11 @@
     // تبديل الشريط الجانبي
     document.getElementById('toggle-sidebar').addEventListener('click', () => {
       sidebarCollapsed = !sidebarCollapsed;
-      updateUI();
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('collapsed', sidebarCollapsed);
+      document.querySelectorAll('.sidebar-text').forEach(span => {
+        span.classList.toggle('hidden', sidebarCollapsed);
+      });
     });
     
     // التنقل بين الأقسام
@@ -2459,22 +2676,21 @@
     updateUI(); 
 
     function checkUpcomingDeadlines() {
-  const now = new Date();
-  const twoDaysFromNow = new Date();
-  twoDaysFromNow.setDate(now.getDate() + 2);
+      const now = new Date();
+      const twoDaysFromNow = new Date();
+      twoDaysFromNow.setDate(now.getDate() + 2);
 
-  const upcomingTasks = tasks.filter(t => {
-    if (!t.deadline || t.status === "منجز" || t.status === "ملغي") return false;
-    const deadline = new Date(t.deadline);
-    return deadline > now && deadline <= twoDaysFromNow;
-  });
+      const upcomingTasks = tasks.filter(t => {
+        if (!t.deadline || t.status === "منجز" || t.status === "ملغي") return false;
+        const deadline = new Date(t.deadline);
+        return deadline > now && deadline <= twoDaysFromNow;
+      });
 
-  if (upcomingTasks.length > 0) {
-    const titles = upcomingTasks.map(t => t.title).join("، ");
-    showNotification(`📌 اقترب موعد التسليم للطلبات: ${titles}`, "warning");
-  }
-}
-
+      if (upcomingTasks.length > 0) {
+        const titles = upcomingTasks.map(t => t.title).join("، ");
+        showNotification(`📌 اقترب موعد التسليم للطلبات: ${titles}`, "warning");
+      }
+    }
   </script>
 </body>
 </html>
